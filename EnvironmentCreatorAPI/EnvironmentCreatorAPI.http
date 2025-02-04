@@ -1,0 +1,6 @@
+@EnvironmentCreatorAPI_HostAddress = http://localhost:5067
+
+GET {{EnvironmentCreatorAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
