@@ -47,7 +47,7 @@ namespace EnvironmentCreatorAPI.Controllers
         {
             try
             {
-                var userIdClaim = User.FindFirst("nameidentifier");
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
                 if (userIdClaim == null)
                 {
                     _logger.LogError("No userId found in token.");
@@ -74,6 +74,7 @@ namespace EnvironmentCreatorAPI.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
 
 
