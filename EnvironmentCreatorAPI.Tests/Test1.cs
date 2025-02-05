@@ -2,35 +2,57 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Configuration; // Correct IConfiguration import
+using Microsoft.Extensions.Configuration;
 using EnvironmentCreatorAPI.Controllers;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
 using BCrypt.Net;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace EnvironmentCreatorAPI.Tests
 {
     [TestClass]
     public class AuthControllerTests
     {
-        private Mock<ApplicationDbContext> _mockContext;
         private Mock<IConfiguration> _mockConfig;
         private Mock<ILogger<AuthController>> _mockLogger;
         private AuthController _controller;
+        private ApplicationDbContext _context;
 
         [TestInitialize]
         public void Setup()
         {
-            _mockContext = new Mock<ApplicationDbContext>();
-            _mockConfig = new Mock<IConfiguration>();
-            _mockLogger = new Mock<ILogger<AuthController>>();
+            // Set up an in-memory database for testing
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase("TestDatabase" + Guid.NewGuid()) // Unique name for each test
+                .Options;
 
-            // Mocking IConfiguration for the JWT secret key
+            _context = new ApplicationDbContext(options);
+
+            // Clear any existing users to ensure a clean state
+            _context.Database.EnsureDeleted(); // Ensures the database is emptied
+            _context.Database.EnsureCreated(); // Recreates the database
+
+            // Seed the database with a test user
+            _context.Users.Add(new User
+            {
+                UserId = 1, // Ensure this UserId does not conflict with others
+                Username = "validUser",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("validPassword")
+            });
+            _context.SaveChanges();
+
+            // Mocking IConfiguration for JWT secret key
+            _mockConfig = new Mock<IConfiguration>();
             _mockConfig.Setup(config => config["JwtSettings:SecretKey"]).Returns("YourSecretKey");
 
-            _controller = new AuthController(_mockContext.Object, _mockConfig.Object, _mockLogger.Object);
+            // Mocking ILogger for AuthController
+            _mockLogger = new Mock<ILogger<AuthController>>();
+
+            // Initialize the controller with the in-memory database context
+            _controller = new AuthController(_context, _mockConfig.Object, _mockLogger.Object);
         }
+
 
         [TestMethod]
         public void Register_ShouldReturnOk_WhenUserIsRegisteredSuccessfully()
@@ -38,9 +60,9 @@ namespace EnvironmentCreatorAPI.Tests
             // Arrange
             var userDto = new UserDTO { Username = "newUser", Password = "newPassword" };
 
-            _mockContext.Setup(c => c.Users.Any(u => u.Username == userDto.Username)).Returns(false); // User doesn't exist
-            _mockContext.Setup(c => c.Users.Add(It.IsAny<User>())).Verifiable();
-            _mockContext.Setup(c => c.SaveChanges()).Verifiable();
+            // Ensure the user does not already exist in the context
+            var userExists = _context.Users.Any(u => u.Username == userDto.Username);
+            Assert.IsFalse(userExists, "User should not already exist.");
 
             // Act
             var result = _controller.Register(userDto);
@@ -50,18 +72,17 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
             Assert.AreEqual("Registratie succesvol.", okResult.Value);
-
-            _mockContext.Verify(c => c.Users.Add(It.IsAny<User>()), Times.Once); // Verifies if Add was called once
-            _mockContext.Verify(c => c.SaveChanges(), Times.Once); // Verifies if SaveChanges was called once
         }
 
         [TestMethod]
         public void Register_ShouldReturnBadRequest_WhenUsernameAlreadyExists()
         {
             // Arrange
-            var userDto = new UserDTO { Username = "existingUser", Password = "password" };
+            var userDto = new UserDTO { Username = "validUser", Password = "password" };
 
-            _mockContext.Setup(c => c.Users.Any(u => u.Username == userDto.Username)).Returns(true); // User already exists
+            // Ensure the user exists in the context
+            var userExists = _context.Users.Any(u => u.Username == userDto.Username);
+            Assert.IsTrue(userExists, "User should already exist.");
 
             // Act
             var result = _controller.Register(userDto);
@@ -78,33 +99,30 @@ namespace EnvironmentCreatorAPI.Tests
         {
             // Arrange
             var loginDto = new UserDTO { Username = "validUser", Password = "validPassword" };
-            var user = new User
-            {
-                UserId = 1,
-                Username = "validUser",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("validPassword")
-            };
 
-            _mockContext.Setup(c => c.Users.FirstOrDefault(u => u.Username == loginDto.Username)).Returns(user); // Valid user found
-            _mockContext.Setup(c => c.Users.Any(u => u.Username == loginDto.Username)).Returns(true);
+            // Ensure the user exists
+            var user = _context.Users.FirstOrDefault(u => u.Username == loginDto.Username);
+            Assert.IsNotNull(user, "User should exist in the database");
 
             // Act
             var result = _controller.Login(loginDto);
 
+            // Log the result for debugging
+            Console.WriteLine($"Result: {result.GetType().Name}"); // Debugging line
+
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
+            Assert.IsNotNull(okResult, "Result should be an OkObjectResult");
             Assert.AreEqual(200, okResult.StatusCode);
-            Assert.IsTrue(okResult.Value.ToString().StartsWith("eyJ")); // JWT token should be returned
+            Assert.IsTrue(okResult.Value.ToString().StartsWith("eyJ"), "JWT token should start with 'eyJ'");
         }
+
 
         [TestMethod]
         public void Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
         {
             // Arrange
             var loginDto = new UserDTO { Username = "invalidUser", Password = "invalidPassword" };
-
-            _mockContext.Setup(c => c.Users.FirstOrDefault(u => u.Username == loginDto.Username)).Returns((User)null); // User not found
 
             // Act
             var result = _controller.Login(loginDto);
