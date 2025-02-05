@@ -12,7 +12,7 @@ public class WorldSelect : MonoBehaviour
     public GameObject worldPrefab;
     public Transform worldsPanel;
     public Button createWorldButton;
-    public TextMeshProUGUI feedbackText;  // Add feedback text for error messages
+    public TextMeshProUGUI feedbackText;
     private string apiUrl = "http://localhost:5067/api/worlds";
 
     void Start()
@@ -39,10 +39,8 @@ public class WorldSelect : MonoBehaviour
         {
             try
             {
-                // Log the raw response body for debugging
                 Debug.Log("Response body: " + request.downloadHandler.text);
 
-                // Use Newtonsoft.Json to directly deserialize the JSON array
                 List<Environment2D> worlds = JsonConvert.DeserializeObject<List<Environment2D>>(request.downloadHandler.text);
 
                 if (worlds == null)
@@ -66,57 +64,31 @@ public class WorldSelect : MonoBehaviour
         {
             Debug.LogError("Fout bij ophalen werelden: " + request.error);
             feedbackText.text = "Fout bij het ophalen van werelden: " + request.error;
-            Debug.LogError("Response body: " + request.downloadHandler.text);  // Log the response body for debugging
+            Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
-
-
-
-
-
 
     void AddWorldToUI(Environment2D world)
     {
         GameObject obj = Instantiate(worldPrefab, worldsPanel);
 
-        // Use TextMeshProUGUI for the TMP component instead of the older Text component
-        TextMeshProUGUI nameText = obj.transform.Find("NameText").GetComponent<TextMeshProUGUI>();
-        nameText.text = world.name;  // Set the world name from the database
+        // Update to find "WorldName" instead of "NameText"
+        TextMeshProUGUI nameText = obj.transform.Find("WorldName")?.GetComponent<TextMeshProUGUI>();
 
-        Button deleteButton = obj.transform.Find("DeleteButton").GetComponent<Button>();
-        deleteButton.onClick.AddListener(() => StartCoroutine(DeleteWorld(world.environmentId, obj)));
-    }
-
-
-    IEnumerator DeleteWorld(int id, GameObject worldItem)
-    {
-        string token = PlayerPrefs.GetString("AuthToken");
-
-        if (string.IsNullOrEmpty(token))
+        if (nameText != null)
         {
-            feedbackText.text = "Token ontbreekt. Log opnieuw in.";
-            yield break;
-        }
-
-        UnityWebRequest request = UnityWebRequest.Delete(apiUrl + "/" + id);
-        request.SetRequestHeader("Authorization", "Bearer " + token);
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            Destroy(worldItem);
-            feedbackText.text = "Wereld verwijderd!";
+            nameText.text = world.name;  // Display the world name
         }
         else
         {
-            Debug.LogError("Verwijderen mislukt: " + request.error);
-            feedbackText.text = "Verwijderen mislukt: " + request.error;
+            Debug.LogError("WorldName TextMeshProUGUI not found in the prefab.");
         }
     }
 
     [System.Serializable]
-    public class Environment2DList
+    public class Environment2D
     {
-        public List<Environment2D> worlds;
+        public int environmentId;
+        public string name;
     }
 }

@@ -332,6 +332,10 @@ PrefabInstance:
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7397792644649987448, guid: e71857ca1699dd74488145229e5d40fd, type: 3}
+      propertyPath: m_Name
+      value: WorldName
+      objectReference: {fileID: 0}
     - target: {fileID: 8444690455825416429, guid: e71857ca1699dd74488145229e5d40fd, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
