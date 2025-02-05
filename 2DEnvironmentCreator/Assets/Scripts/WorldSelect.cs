@@ -23,9 +23,6 @@ public class WorldSelect : MonoBehaviour
     IEnumerator GetWorlds()
     {
         string token = PlayerPrefs.GetString("AuthToken");
-        Debug.Log("Token from PlayerPrefs: " + token);  // Debug line to check the token
-
-
 
         if (string.IsNullOrEmpty(token))
         {
@@ -41,10 +38,8 @@ public class WorldSelect : MonoBehaviour
         {
             try
             {
-                // Assuming the response is a JSON array of worlds wrapped in a "worlds" field
                 List<Environment2D> worlds = JsonUtility.FromJson<WorldList>("{\"worlds\":" + request.downloadHandler.text + "}").worlds;
-
-                int count = Mathf.Min(worlds.Count, 5); // Display up to 5 worlds
+                int count = Mathf.Min(worlds.Count, 5);
                 for (int i = 0; i < count; i++)
                 {
                     AddWorldToUI(worlds[i]);
@@ -54,20 +49,17 @@ public class WorldSelect : MonoBehaviour
             {
                 Debug.LogError("Error parsing world data: " + e.Message);
                 feedbackText.text = "Fout bij het ophalen van werelden.";
-                string url = apiUrl;
-                Debug.Log("Request URL: " + url);
-
             }
         }
         else
         {
             Debug.LogError("Fout bij ophalen werelden: " + request.error);
             feedbackText.text = "Fout bij het ophalen van werelden: " + request.error;
-            string url = apiUrl;
-            Debug.Log("Request URL: " + url);
-
+            Debug.LogError("Response body: " + request.downloadHandler.text);  // Log the response body
         }
     }
+
+
 
     void AddWorldToUI(Environment2D world)
     {

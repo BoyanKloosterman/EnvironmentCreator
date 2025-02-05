@@ -47,31 +47,27 @@ namespace EnvironmentCreatorAPI.Controllers
         {
             try
             {
-                // Haal de userId uit de claims van de JWT-token
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null)
-                {
-                    return Unauthorized("Gebruiker niet geauthenticeerd.");
-                }
+                var userId = int.Parse(User.FindFirst("nameidentifier").Value);
+                _logger.LogInformation("Fetching worlds for user: {UserId}", userId);
 
-                int userId = int.Parse(userIdClaim.Value);
-
-                // Haal werelden op die overeenkomen met de gebruiker
                 var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
 
-                if (worlds == null || worlds.Count == 0)
+                if (worlds == null)
                 {
-                    return NotFound("Geen werelden gevonden.");
+                    _logger.LogWarning("No worlds found for user: {UserId}", userId);
+                    return NotFound("No worlds found.");
                 }
 
+                _logger.LogInformation("Successfully fetched {WorldCount} worlds for user: {UserId}", worlds.Count, userId);
                 return Ok(worlds);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fout bij ophalen van werelden");
-                return StatusCode(500, "Er is een interne serverfout opgetreden.");
+                _logger.LogError(ex, "Error fetching worlds for user.");
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
 
 
