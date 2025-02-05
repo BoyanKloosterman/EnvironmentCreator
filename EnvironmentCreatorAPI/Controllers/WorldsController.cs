@@ -12,10 +12,12 @@ namespace EnvironmentCreatorAPI.Controllers
     public class WorldsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<WorldsController> _logger;
 
-        public WorldsController(ApplicationDbContext context)
+        public WorldsController(ApplicationDbContext context, ILogger<WorldsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -45,30 +47,34 @@ namespace EnvironmentCreatorAPI.Controllers
         {
             try
             {
-                // Haal de userId uit de claims van de JWT-token
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var userIdClaim = User.FindFirst("nameidentifier");
                 if (userIdClaim == null)
                 {
-                    return Unauthorized("Gebruiker niet geauthenticeerd.");
+                    _logger.LogError("No userId found in token.");
+                    return Unauthorized("Token invalid or missing userId.");
                 }
 
-                int userId = int.Parse(userIdClaim.Value);
+                var userId = int.Parse(userIdClaim.Value);
+                _logger.LogInformation("Fetching worlds for user: {UserId}", userId);
 
-                // Haal werelden op die overeenkomen met de gebruiker
                 var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
 
                 if (worlds == null || worlds.Count == 0)
                 {
-                    return NotFound("Geen werelden gevonden.");
+                    _logger.LogInformation("No worlds found for user: {UserId}", userId);
+                    return NotFound("No worlds found.");
                 }
 
+                _logger.LogInformation("Successfully fetched {WorldCount} worlds for user: {UserId}", worlds.Count, userId);
                 return Ok(worlds);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Er is een interne serverfout opgetreden.");
+                _logger.LogError(ex, "Error occurred while fetching worlds for user.");
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
 
 
