@@ -46,11 +46,10 @@ public class WorldSelect : MonoBehaviour
                     throw new System.Exception("Worlds list is null.");
                 }
 
-                // Save the userId from the first world in the list (if available)
                 if (worlds.Count > 0)
                 {
-                    int userId = worlds[0].userId;  // Assuming userId is the same for all worlds
-                    PlayerPrefs.SetInt("UserId", userId);  // Save userId in PlayerPrefs
+                    int userId = worlds[0].userId;
+                    PlayerPrefs.SetInt("UserId", userId);
                     PlayerPrefs.Save();
                     Debug.Log("UserId saved: " + userId);
                 }
@@ -68,7 +67,7 @@ public class WorldSelect : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Fout bij ophalen werelden: " + request.error);
+            Debug.LogError("Error fetching worlds: " + request.error);
             Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
@@ -77,16 +76,45 @@ public class WorldSelect : MonoBehaviour
     {
         GameObject obj = Instantiate(worldPrefab, worldsPanel);
 
-        // Update to find "WorldName" instead of "NameText"
         TextMeshProUGUI nameText = obj.transform.Find("WorldName")?.GetComponent<TextMeshProUGUI>();
+        Button deleteButton = obj.transform.Find("DeleteButton")?.GetComponent<Button>();
 
         if (nameText != null)
         {
-            nameText.text = world.name;  // Display the world name
+            nameText.text = world.name;
         }
         else
         {
             Debug.LogError("WorldName TextMeshProUGUI not found in the prefab.");
+        }
+
+        if (deleteButton != null)
+        {
+            deleteButton.onClick.AddListener(() => StartCoroutine(DeleteWorld(world.environmentId, obj)));
+        }
+        else
+        {
+            Debug.LogError("DeleteButton not found in the prefab.");
+        }
+    }
+
+    IEnumerator DeleteWorld(int environmentId, GameObject worldObject)
+    {
+        string token = PlayerPrefs.GetString("AuthToken");
+        UnityWebRequest request = UnityWebRequest.Delete(apiUrl + "/" + environmentId);
+        request.SetRequestHeader("Authorization", "Bearer " + token);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("World deleted successfully.");
+            Destroy(worldObject);
+        }
+        else
+        {
+            Debug.LogError("Error deleting world: " + request.error);
+            Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
 
