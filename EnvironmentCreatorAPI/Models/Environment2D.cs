@@ -11,7 +11,7 @@ namespace EnvironmentCreatorAPI.Models
 
         [Required, ForeignKey("User")]
         public int UserId { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
 
         [Required, MaxLength(100)]
         public string Name { get; set; }
@@ -22,6 +22,6 @@ namespace EnvironmentCreatorAPI.Models
         [Required]
         public int MaxLength { get; set; }
 
-        public ICollection<Object2D> Objects { get; set; }
+        public ICollection<Object2D> Objects { get; set; } = new List<Object2D>();
     }
 }

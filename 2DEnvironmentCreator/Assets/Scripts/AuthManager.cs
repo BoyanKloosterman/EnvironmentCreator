@@ -150,6 +150,7 @@ public class AuthManager : MonoBehaviour
                 // Assuming the response body contains just the token as a string.
                 string token = www.downloadHandler.text;
                 PlayerPrefs.SetString("AuthToken", token);  // Store the token in PlayerPrefs
+
                 PlayerPrefs.Save();  // Ensure it's saved
 
                 Debug.Log("Login successful, token saved: " + token);

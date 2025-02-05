@@ -12,12 +12,11 @@ public class WorldSelect : MonoBehaviour
     public GameObject worldPrefab;
     public Transform worldsPanel;
     public Button createWorldButton;
-    public TextMeshProUGUI feedbackText;
     private string apiUrl = "http://localhost:5067/api/worlds";
 
     void Start()
     {
-        createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("CreateWorldScene"));
+        createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("WorldCreateScene"));
         StartCoroutine(GetWorlds());
     }
 
@@ -27,7 +26,6 @@ public class WorldSelect : MonoBehaviour
 
         if (string.IsNullOrEmpty(token))
         {
-            feedbackText.text = "Token ontbreekt. Log opnieuw in.";
             yield break;
         }
 
@@ -48,6 +46,15 @@ public class WorldSelect : MonoBehaviour
                     throw new System.Exception("Worlds list is null.");
                 }
 
+                // Save the userId from the first world in the list (if available)
+                if (worlds.Count > 0)
+                {
+                    int userId = worlds[0].userId;  // Assuming userId is the same for all worlds
+                    PlayerPrefs.SetInt("UserId", userId);  // Save userId in PlayerPrefs
+                    PlayerPrefs.Save();
+                    Debug.Log("UserId saved: " + userId);
+                }
+
                 int count = Mathf.Min(worlds.Count, 5);
                 for (int i = 0; i < count; i++)
                 {
@@ -57,13 +64,11 @@ public class WorldSelect : MonoBehaviour
             catch (System.Exception e)
             {
                 Debug.LogError("Error parsing world data: " + e.Message);
-                feedbackText.text = "Fout bij het ophalen van werelden.";
             }
         }
         else
         {
             Debug.LogError("Fout bij ophalen werelden: " + request.error);
-            feedbackText.text = "Fout bij het ophalen van werelden: " + request.error;
             Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
@@ -90,5 +95,6 @@ public class WorldSelect : MonoBehaviour
     {
         public int environmentId;
         public string name;
+        public int userId;
     }
 }
