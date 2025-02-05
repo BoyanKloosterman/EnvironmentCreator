@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.Networking;
 using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime;
 
 public class AuthManager : MonoBehaviour
 {
@@ -146,8 +147,13 @@ public class AuthManager : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                PlayerPrefs.SetString("AuthToken", www.downloadHandler.text);
-                SceneManager.LoadScene("WorldScene");
+                // Assuming the response body contains just the token as a string.
+                string token = www.downloadHandler.text;
+                PlayerPrefs.SetString("AuthToken", token);  // Store the token in PlayerPrefs
+                PlayerPrefs.Save();  // Ensure it's saved
+
+                Debug.Log("Login successful, token saved: " + token);
+                SceneManager.LoadScene("WorldScene");  // Load the next scene
             }
             else
             {
@@ -157,4 +163,5 @@ public class AuthManager : MonoBehaviour
             }
         }
     }
+
 }

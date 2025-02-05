@@ -6,6 +6,7 @@ using System.Text;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
 using BCrypt.Net;
+using System.Diagnostics;
 
 
 namespace EnvironmentCreatorAPI.Controllers
@@ -58,6 +59,7 @@ namespace EnvironmentCreatorAPI.Controllers
                     return Unauthorized("Invalid credentials.");
 
                 var token = GenerateJwtToken(user);
+                Debug.WriteLine(token);
                 return Ok(token);
             }
             catch (Exception ex)
@@ -67,7 +69,6 @@ namespace EnvironmentCreatorAPI.Controllers
             }
         }
 
-
         private string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]));
@@ -75,10 +76,11 @@ namespace EnvironmentCreatorAPI.Controllers
 
             var claims = new[]
             {
-             new Claim(ClaimTypes.Name, user.Username),
-             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-            };
-
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
+        new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
+    };
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -87,5 +89,6 @@ namespace EnvironmentCreatorAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

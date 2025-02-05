@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
+using System.Security.Claims;
 
 namespace EnvironmentCreatorAPI.Controllers
 {
@@ -11,10 +12,12 @@ namespace EnvironmentCreatorAPI.Controllers
     public class WorldsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<WorldsController> _logger;
 
-        public WorldsController(ApplicationDbContext context)
+        public WorldsController(ApplicationDbContext context, ILogger<WorldsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -42,10 +45,39 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpGet]
         public IActionResult GetWorlds()
         {
-            var userId = int.Parse(User.FindFirst("nameidentifier").Value);
-            var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
-            return Ok(worlds);
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    _logger.LogError("No userId found in token.");
+                    return Unauthorized("Token invalid or missing userId.");
+                }
+
+                var userId = int.Parse(userIdClaim.Value);
+                _logger.LogInformation("Fetching worlds for user: {UserId}", userId);
+
+                var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
+
+                if (worlds == null || worlds.Count == 0)
+                {
+                    _logger.LogInformation("No worlds found for user: {UserId}", userId);
+                    return NotFound("No worlds found.");
+                }
+
+                _logger.LogInformation("Successfully fetched {WorldCount} worlds for user: {UserId}", worlds.Count, userId);
+                return Ok(worlds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching worlds for user.");
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
+
+
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteWorld(int id)
