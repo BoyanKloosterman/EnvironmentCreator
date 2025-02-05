@@ -23,8 +23,12 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpPost]
         public IActionResult CreateWorld([FromBody] Environment2D world)
         {
-            var userId = int.Parse(User.FindFirst("nameidentifier").Value);
-            world.UserId = userId;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized("Invalid userId in token.");
+            }
+
 
             if (string.IsNullOrWhiteSpace(world.Name) || world.Name.Length > 25)
                 return BadRequest("Naam moet tussen 1 en 25 karakters zijn.");
