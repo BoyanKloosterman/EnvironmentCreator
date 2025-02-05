@@ -74,10 +74,10 @@ namespace EnvironmentCreatorAPI.Controllers
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
-           {
-    new Claim(ClaimTypes.Name, user.Username),
-    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-};
+            {
+             new Claim(ClaimTypes.Name, user.Username),
+             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+            };
 
 
             var token = new JwtSecurityToken(
