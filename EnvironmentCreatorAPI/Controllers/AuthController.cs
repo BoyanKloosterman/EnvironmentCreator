@@ -6,6 +6,7 @@ using System.Text;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
 using BCrypt.Net;
+using System.Diagnostics;
 
 
 namespace EnvironmentCreatorAPI.Controllers
@@ -58,6 +59,7 @@ namespace EnvironmentCreatorAPI.Controllers
                     return Unauthorized("Invalid credentials.");
 
                 var token = GenerateJwtToken(user);
+                Debug.WriteLine(token);
                 return Ok(token);
             }
             catch (Exception ex)

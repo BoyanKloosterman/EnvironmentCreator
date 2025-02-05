@@ -21,6 +21,8 @@ public class WorldSelect : MonoBehaviour
     IEnumerator GetWorlds()
     {
         UnityWebRequest request = UnityWebRequest.Get(apiUrl);
+        Debug.Log("Token: " + PlayerPrefs.GetString("token"));
+
         request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("token"));
         yield return request.SendWebRequest();
 
