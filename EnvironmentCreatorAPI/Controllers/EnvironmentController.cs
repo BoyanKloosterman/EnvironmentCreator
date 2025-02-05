@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
+using System.Security.Claims;
 
 namespace EnvironmentCreatorAPI.Controllers
 {
@@ -11,10 +12,12 @@ namespace EnvironmentCreatorAPI.Controllers
     public class WorldsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger _logger;
 
-        public WorldsController(ApplicationDbContext context)
+        public WorldsController(ApplicationDbContext context, ILogger logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -42,10 +45,35 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpGet]
         public IActionResult GetWorlds()
         {
-            var userId = int.Parse(User.FindFirst("nameidentifier").Value);
-            var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
-            return Ok(worlds);
+            try
+            {
+                // Haal de userId uit de claims van de JWT-token
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("Gebruiker niet geauthenticeerd.");
+                }
+
+                int userId = int.Parse(userIdClaim.Value);
+
+                // Haal werelden op die overeenkomen met de gebruiker
+                var worlds = _context.Worlds.Where(w => w.UserId == userId).ToList();
+
+                if (worlds == null || worlds.Count == 0)
+                {
+                    return NotFound("Geen werelden gevonden.");
+                }
+
+                return Ok(worlds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fout bij ophalen van werelden");
+                return StatusCode(500, "Er is een interne serverfout opgetreden.");
+            }
         }
+
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteWorld(int id)
