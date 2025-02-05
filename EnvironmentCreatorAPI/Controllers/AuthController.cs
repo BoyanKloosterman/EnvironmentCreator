@@ -78,8 +78,8 @@ namespace EnvironmentCreatorAPI.Controllers
             {
         new Claim(ClaimTypes.Name, user.Username),
         new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"), // Example Audience
-        new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")  // Add the Issuer claim
+        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
+        new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
     };
 
             var token = new JwtSecurityToken(
