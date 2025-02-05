@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EnvironmentCreatorAPI.Data;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("SecretKey is not configured")))
         };
     });
+
+//builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+//{
+//    options.Password.RequireDigit = true;
+//    options.Password.RequiredLength = 10;
+//    options.Password.RequireNonAlphanumeric = true;
+//    options.Password.RequireLowercase = true;
+//    options.Password.RequireUppercase = true;
+//    options.Password.RequiredUniqueChars = 1;
+//}).AddDefaultTokenProviders();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
