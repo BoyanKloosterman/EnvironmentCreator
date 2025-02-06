@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/WorldScene.unity
+    path: Assets/Scenes/WorldSelectScene.unity
     guid: c1809f8faec994f41ab74e62098f9227
   - enabled: 1
     path: Assets/Scenes/WorldCreateScene.unity
