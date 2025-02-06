@@ -429,6 +429,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1896875807954303502, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2113523861449516571, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: prefabId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2128970694905830074, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: prefabId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2598984462124886578, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2639869696097237309, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4020065018727785356, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: prefabId
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4695730635837788770, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: prefabId
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4944815743944953060, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId6
+      objectReference: {fileID: 0}
     - target: {fileID: 5223029554961324498, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
       propertyPath: m_SortingOrder
       value: 2
@@ -436,6 +468,18 @@ PrefabInstance:
     - target: {fileID: 6358597898946546920, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
       propertyPath: m_Name
       value: DiceCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6394091804215900059, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6750839099566720217, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_Name
+      value: diceId5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9137150297180443550, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: prefabId
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

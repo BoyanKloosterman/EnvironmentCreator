@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.Networking;
 using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class WorldManager : MonoBehaviour
 {
@@ -17,6 +19,13 @@ public class WorldManager : MonoBehaviour
     private GameObject currentObject;
     private int currentPrefabId;
 
+    public GameObject prefab1;
+    public GameObject prefab2;
+    public GameObject prefab3;
+    public GameObject prefab4;
+    public GameObject prefab5;
+    public GameObject prefab6;
+
     void Start()
     {
         Debug.Log("WorldManager started.");
@@ -24,13 +33,16 @@ public class WorldManager : MonoBehaviour
         backButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
         environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0); // Get selected world ID from PlayerPrefs
 
+        Debug.Log("Selected Environment ID: " + environmentId);
+
         if (environmentId == 0)
         {
             Debug.LogWarning("Environment ID not set.");
         }
         else
         {
-            Debug.Log("Selected environment ID: " + environmentId);
+            Debug.Log("Loading objects for environment ID: " + environmentId);
+            LoadObjectsFromEnvironment();
         }
     }
 
@@ -149,7 +161,131 @@ public class WorldManager : MonoBehaviour
         }
     }
 
+    public void LoadObjectsFromEnvironment()
+    {
+        if (environmentId == 0)
+        {
+            Debug.LogError("Environment ID is not set.");
+            return; // Make sure the environment is set
+        }
 
+        // Assuming API URL provides a list of objects
+        string url = $"{apiUrl}/environment/{environmentId}"; // Adjust according to your API
+
+        Debug.Log("Requesting objects for environment ID: " + environmentId);
+
+        StartCoroutine(GetObjectsFromServer(url));
+    }
+
+    IEnumerator GetObjectsFromServer(string url)
+    {
+        string authToken = PlayerPrefs.GetString("AuthToken", "");
+        if (string.IsNullOrEmpty(authToken))
+        {
+            Debug.LogError("Auth token is missing! Make sure the user is logged in.");
+            yield break;
+        }
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+
+        Debug.Log("Sending request to server: " + url);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Objects loaded successfully.");
+            string responseJson = request.downloadHandler.text;
+
+            // Debug the raw JSON response
+            Debug.Log("Response JSON: " + responseJson);
+
+            try
+            {
+                // Deserialize the response to get objects
+                Object2DListWrapper objectWrapper = JsonUtility.FromJson<Object2DListWrapper>(responseJson);
+
+                if (objectWrapper != null && objectWrapper.objects != null)
+                {
+                    Debug.Log("Restoring objects...");
+                    foreach (var objectData in objectWrapper.objects)
+                    {
+                        RestoreObject(objectData);
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Failed to parse objects from the server.");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Error parsing JSON response: " + ex.Message);
+            }
+        }
+        else
+        {
+            Debug.LogError("Error loading objects: " + request.error);
+            Debug.LogError("Server Response: " + request.downloadHandler.text); // Log server response for more insight
+        }
+    }
+
+
+
+
+    public void RestoreObject(Object2D objectData)
+    {
+        Debug.Log("Restoring object with PrefabId: " + objectData.PrefabId);
+
+        // Instantiate the object based on prefab ID or whatever method you're using to create objects
+        GameObject prefab = GetPrefabById(objectData.PrefabId);
+        if (prefab != null)
+        {
+            GameObject obj = Instantiate(prefab, new Vector3(objectData.PositionX, objectData.PositionY, 0), Quaternion.Euler(0, 0, objectData.RotationZ));
+            obj.transform.localScale = new Vector3(objectData.ScaleX, objectData.ScaleY, 1);
+
+            // Optionally set the sorting layer if needed
+            obj.GetComponent<Renderer>().sortingOrder = objectData.SortingLayer;
+            Debug.Log("Object restored: " + obj.name);
+        }
+        else
+        {
+            Debug.LogWarning("Prefab not found for ID: " + objectData.PrefabId);
+        }
+    }
+
+    public GameObject GetPrefabById(int prefabId)
+    {
+        Debug.Log("Getting prefab with ID: " + prefabId);
+
+        switch (prefabId)
+        {
+            case 1:
+                return prefab1; // Dice 1 prefab
+            case 2:
+                return prefab2; // Dice 2 prefab
+            case 3:
+                return prefab3; // Dice 3 prefab
+            case 4:
+                return prefab4; // Dice 4 prefab
+            case 5:
+                return prefab5; // Dice 5 prefab
+            case 6:
+                return prefab6; // Dice 6 prefab
+            default:
+                Debug.LogError("PrefabId not recognized");
+                return null;
+        }
+    }
+
+
+
+    [System.Serializable]
+    public class Object2DListWrapper
+    {
+        public List<Object2D> objects;
+    }
 
     [System.Serializable]
     public class Object2D
@@ -162,5 +298,6 @@ public class WorldManager : MonoBehaviour
         public float ScaleY;
         public float RotationZ;
         public int SortingLayer;
+
     }
 }

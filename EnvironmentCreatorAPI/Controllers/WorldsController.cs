@@ -80,9 +80,6 @@ namespace EnvironmentCreatorAPI.Controllers
         }
 
 
-
-
-
         [HttpDelete("{id}")]
         public IActionResult DeleteWorld(int id)
         {
