@@ -118,6 +118,8 @@ public class WorldSelect : MonoBehaviour
         // Assuming you want to load a scene based on the environmentId, you can load a scene like this
         // For example, use the environmentId to load the scene dynamically or pass it through the scene manager
         PlayerPrefs.SetInt("SelectedEnvironmentId", environmentId); // Save the selected environmentId to PlayerPrefs
+        PlayerPrefs.Save();
+        Debug.Log("Selected world ID saved: " + environmentId);
         SceneManager.LoadScene("WorldScene"); // Load the scene where the environmentId will be used
     }
 
