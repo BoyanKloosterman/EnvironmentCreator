@@ -23,10 +23,10 @@ public class WorldCreate : MonoBehaviour
 
     void CreateWorld()
     {
-        string name = nameInput.text.Trim(); // Ensure no leading/trailing spaces
+        string name = nameInput.text.Trim();
         int length = int.Parse(lengthInput.text);
         int width = int.Parse(widthInput.text);
-        int userId = PlayerPrefs.GetInt("UserId"); // Ensure this is set during login
+        int userId = PlayerPrefs.GetInt("UserId");
 
         if (string.IsNullOrEmpty(name) || length <= 0 || width <= 0)
         {
@@ -47,7 +47,7 @@ public class WorldCreate : MonoBehaviour
             UserId = userId
         };
 
-        string jsonData = JsonConvert.SerializeObject(worldData);  // Use Newtonsoft.Json for serialization
+        string jsonData = JsonConvert.SerializeObject(worldData);
         Debug.Log("JsonData: " + jsonData);
 
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");

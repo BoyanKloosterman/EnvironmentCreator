@@ -1,18 +1,22 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 public class DiceDragHandler : MonoBehaviour
 {
     private bool isDragging = false;
     private Vector3 mouseOffset;
     private bool hasCloned = false;
+    private WorldManager worldManager;
+    public int prefabId = 1; // Assign a unique ID for different dice prefabs if needed
 
+    private void Start()
+    {
+        // Find the WorldManager in the scene
+        worldManager = FindObjectOfType<WorldManager>();
+    }
 
     private void OnMouseDown()
     {
         isDragging = true;
-
         mouseOffset = transform.position - GetMouseWorldPosition();
 
         if (!hasCloned)
@@ -25,6 +29,12 @@ public class DiceDragHandler : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
+
+        // Save the object when placed
+        if (worldManager != null)
+        {
+            worldManager.SaveObjectToEnvironment(gameObject, prefabId);
+        }
     }
 
     private void Update()

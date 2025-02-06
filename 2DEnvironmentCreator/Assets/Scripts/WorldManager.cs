@@ -8,7 +8,6 @@ using TMPro;
 public class WorldManager : MonoBehaviour
 {
     public Button backButton;
-    public TextMeshProUGUI feedbackText;
     private string apiUrl = "http://localhost:5067/api/objects"; // Endpoint for saving objects
 
     // This should be set when loading the world scene
@@ -23,7 +22,7 @@ public class WorldManager : MonoBehaviour
         Debug.Log("WorldManager started.");
 
         backButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
-        environmentId = PlayerPrefs.GetInt("SelectedWorldId", 0); // Get selected world ID from PlayerPrefs
+        environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0); // Get selected world ID from PlayerPrefs
 
         if (environmentId == 0)
         {
@@ -107,30 +106,50 @@ public class WorldManager : MonoBehaviour
 
     IEnumerator PostObjectToEnvironment(Object2D object2D)
     {
-        string jsonData = JsonUtility.ToJson(object2D); // Unity's JSON utility
+        if (object2D == null)
+        {
+            Debug.LogError("Object2D is null! Aborting request.");
+            yield break;
+        }
+
+        string jsonData = JsonUtility.ToJson(object2D);
         Debug.Log("Sending object data to server: " + jsonData);
+
+        if (string.IsNullOrEmpty(apiUrl))
+        {
+            Debug.LogError("API URL is null or empty!");
+            yield break;
+        }
+
+        string authToken = PlayerPrefs.GetString("AuthToken", "");
+        if (string.IsNullOrEmpty(authToken))
+        {
+            Debug.LogError("Auth token is missing! Make sure the user is logged in.");
+            yield break;
+        }
 
         UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken"));
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
 
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            feedbackText.text = "Object saved successfully!";
             Debug.Log("Object saved successfully.");
         }
         else
         {
-            feedbackText.text = "Error saving object: " + request.downloadHandler.text;
-            Debug.LogError("Error saving object: " + request.error);
-            Debug.LogError("Server Response: " + request.downloadHandler.text);
+            string errorMessage = "Error saving object: " + (request.downloadHandler != null ? request.downloadHandler.text : "Unknown error");
+            Debug.LogError(errorMessage);
+            Debug.LogError("Server Response: " + (request.downloadHandler != null ? request.downloadHandler.text : "No response"));
         }
     }
+
+
 
     [System.Serializable]
     public class Object2D

@@ -14,7 +14,6 @@ public class AuthManager : MonoBehaviour
 
     private string apiUrl = "http://localhost:5067/api/auth";
 
-    // Define a class to handle the user data for both Register and Login
     [System.Serializable]
     public class UserData
     {
