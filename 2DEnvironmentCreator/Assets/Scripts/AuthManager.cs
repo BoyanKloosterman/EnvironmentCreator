@@ -154,7 +154,7 @@ public class AuthManager : MonoBehaviour
                 PlayerPrefs.Save();  // Ensure it's saved
 
                 Debug.Log("Login successful, token saved: " + token);
-                SceneManager.LoadScene("WorldScene");  // Load the next scene
+                SceneManager.LoadScene("WorldSelectScene");  // Load the next scene
             }
             else
             {
