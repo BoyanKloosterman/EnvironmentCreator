@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class DiceDragHandler : MonoBehaviour
 {
     private bool isDragging = false;
     private Vector3 mouseOffset;
     private bool hasCloned = false;
+
 
     private void OnMouseDown()
     {

@@ -76,9 +76,12 @@ public class WorldSelect : MonoBehaviour
     {
         GameObject obj = Instantiate(worldPrefab, worldsPanel);
 
+        // Find the components
         TextMeshProUGUI nameText = obj.transform.Find("WorldName")?.GetComponent<TextMeshProUGUI>();
+        Button worldButton = obj.GetComponent<Button>(); // Assuming the entire prefab is a button
         Button deleteButton = obj.transform.Find("DeleteButton")?.GetComponent<Button>();
 
+        // Set the name text
         if (nameText != null)
         {
             nameText.text = world.name;
@@ -88,6 +91,17 @@ public class WorldSelect : MonoBehaviour
             Debug.LogError("WorldName TextMeshProUGUI not found in the prefab.");
         }
 
+        // Add a listener to the world button to load the environment scene
+        if (worldButton != null)
+        {
+            worldButton.onClick.AddListener(() => OnWorldButtonClicked(world.environmentId));
+        }
+        else
+        {
+            Debug.LogError("World Button not found in the prefab.");
+        }
+
+        // Set up the delete button
         if (deleteButton != null)
         {
             deleteButton.onClick.AddListener(() => StartCoroutine(DeleteWorld(world.environmentId, obj)));
@@ -97,6 +111,16 @@ public class WorldSelect : MonoBehaviour
             Debug.LogError("DeleteButton not found in the prefab.");
         }
     }
+
+    // Method to handle when the world button is clicked
+    void OnWorldButtonClicked(int environmentId)
+    {
+        // Assuming you want to load a scene based on the environmentId, you can load a scene like this
+        // For example, use the environmentId to load the scene dynamically or pass it through the scene manager
+        PlayerPrefs.SetInt("SelectedEnvironmentId", environmentId); // Save the selected environmentId to PlayerPrefs
+        SceneManager.LoadScene("WorldScene"); // Load the scene where the environmentId will be used
+    }
+
 
     IEnumerator DeleteWorld(int environmentId, GameObject worldObject)
     {
