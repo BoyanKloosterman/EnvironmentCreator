@@ -147,14 +147,13 @@ public class AuthManager : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                // Assuming the response body contains just the token as a string.
                 string token = www.downloadHandler.text;
-                PlayerPrefs.SetString("AuthToken", token);  // Store the token in PlayerPrefs
+                PlayerPrefs.SetString("AuthToken", token);
 
-                PlayerPrefs.Save();  // Ensure it's saved
+                PlayerPrefs.Save();
 
                 Debug.Log("Login successful, token saved: " + token);
-                SceneManager.LoadScene("WorldSelectScene");  // Load the next scene
+                SceneManager.LoadScene("WorldSelectScene");
             }
             else
             {

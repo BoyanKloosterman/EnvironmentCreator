@@ -62,7 +62,7 @@ public class WorldCreate : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             feedbackText.text = "Wereld succesvol aangemaakt!";
-            SceneManager.LoadScene("WorldSelect");
+            SceneManager.LoadScene("WorldSelectScene");
         }
         else
         {
