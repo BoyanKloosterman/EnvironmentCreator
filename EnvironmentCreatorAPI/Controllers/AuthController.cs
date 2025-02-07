@@ -59,8 +59,14 @@ namespace EnvironmentCreatorAPI.Controllers
                     return Unauthorized("Invalid credentials.");
 
                 var token = GenerateJwtToken(user);
-                Debug.WriteLine(token);
-                return Ok(token);
+
+                var loginResponse = new LoginResponse
+                {
+                    Token = token,
+                    UserId = user.UserId
+                };
+
+                return Ok(loginResponse);
             }
             catch (Exception ex)
             {
@@ -69,18 +75,24 @@ namespace EnvironmentCreatorAPI.Controllers
             }
         }
 
+        public class LoginResponse
+        {
+            public string Token { get; set; }
+            public int UserId { get; set; }
+        }
+
+
         private string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
-            {
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
-        new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
-    };
+            var claims = new[] {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // UserId as claim
+                new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
+                new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
+                };
 
             var token = new JwtSecurityToken(
                 claims: claims,
