@@ -31,10 +31,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-});
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        // Disable reference handling so that the output is a plain array.
+        options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
+    });
 
 
 builder.Services.AddControllers();

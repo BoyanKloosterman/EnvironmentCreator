@@ -3,10 +3,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.Networking;
-using TMPro;
 using System.Collections.Generic;
 using System;
-using LiteDB;
 
 public class WorldManager : MonoBehaviour
 {
@@ -195,30 +193,17 @@ public class WorldManager : MonoBehaviour
             Debug.Log("Response JSON: " + responseJson);
             try
             {
-                Object2DListWrapper objectWrapper = JsonUtility.FromJson<Object2DListWrapper>(responseJson);
+                Object2D[] objects = JsonHelper.FromJson<Object2D>(responseJson);
 
-                if (objectWrapper != null && objectWrapper.objects != null)
+                if (objects != null)
                 {
                     Debug.Log("Restoring objects...");
 
-                    foreach (var objectData in objectWrapper.objects)
+                    foreach (var objectData in objects)
                     {
-                        Debug.Log($"Restoring object with PrefabId: {objectData.PrefabId}, " +
-                                  $"PositionX type = {objectData.PositionX.GetType()}, " +
-                                  $"ScaleX type = {objectData.ScaleX.GetType()}");
-
-                        Object2D correctedObjectData = new Object2D(
-                            objectData.EnvironmentId,
-                            objectData.PrefabId,
-                            (float)objectData.PositionX,
-                            (float)objectData.PositionY,
-                            (float)objectData.ScaleX,
-                            (float)objectData.ScaleY,
-                            (float)objectData.RotationZ,
-                            objectData.SortingLayer
-                        );
-
-                        RestoreObject(correctedObjectData);
+                        Debug.Log($"Restoring object with prefabId: {objectData.prefabId}");
+                        // Directly pass the deserialized objectData to the restore method
+                        RestoreObject(objectData);
                     }
                 }
                 else
@@ -238,25 +223,22 @@ public class WorldManager : MonoBehaviour
         }
     }
 
-
-
-
     public void RestoreObject(Object2D objectData)
     {
-        Debug.Log("Restoring object with PrefabId: " + objectData.PrefabId);
+        Debug.Log("Restoring object with prefabId: " + objectData.prefabId);
 
-        GameObject prefab = GetPrefabById(objectData.PrefabId);
+        GameObject prefab = GetPrefabById(objectData.prefabId);
         if (prefab != null)
         {
-            GameObject obj = Instantiate(prefab, new Vector3(objectData.PositionX, objectData.PositionY, 0), Quaternion.Euler(0, 0, objectData.RotationZ));
-            obj.transform.localScale = new Vector3(objectData.ScaleX, objectData.ScaleY, 1);
+            GameObject obj = Instantiate(prefab, new Vector3(objectData.positionX, objectData.positionY, 0), Quaternion.Euler(0, 0, objectData.rotationZ));
+            obj.transform.localScale = new Vector3(objectData.scaleX, objectData.scaleY, 1);
 
-            obj.GetComponent<Renderer>().sortingOrder = objectData.SortingLayer;
+            obj.GetComponent<Renderer>().sortingOrder = objectData.sortingLayer;
             Debug.Log("Object restored: " + obj.name);
         }
         else
         {
-            Debug.LogWarning("Prefab not found for ID: " + objectData.PrefabId);
+            Debug.LogWarning("Prefab not found for ID: " + objectData.prefabId);
         }
     }
 
@@ -284,7 +266,21 @@ public class WorldManager : MonoBehaviour
         }
     }
 
+    public static class JsonHelper
+    {
+        [System.Serializable]
+        private class Wrapper<T>
+        {
+            public T[] array;
+        }
 
+        public static T[] FromJson<T>(string json)
+        {
+            string newJson = "{ \"array\": " + json + "}";
+            Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(newJson);
+            return wrapper.array;
+        }
+    }
 
     [System.Serializable]
     public class Object2DListWrapper
@@ -295,26 +291,25 @@ public class WorldManager : MonoBehaviour
     [System.Serializable]
     public class Object2D
     {
-        public int EnvironmentId;
-        public int PrefabId;
-        public float PositionX;
-        public float PositionY;
-        public float ScaleX;
-        public float ScaleY;
-        public float RotationZ;
-        public int SortingLayer;
+        public int environmentId;
+        public int prefabId;
+        public float positionX;
+        public float positionY;
+        public float scaleX;
+        public float scaleY;
+        public float rotationZ;
+        public int sortingLayer;
 
-        // Constructor to handle double to float conversion
         public Object2D(int environmentId, int prefabId, double positionX, double positionY, double scaleX, double scaleY, double rotationZ, int sortingLayer)
         {
-            EnvironmentId = environmentId;
-            PrefabId = prefabId;
-            PositionX = (float)positionX;
-            PositionY = (float)positionY;
-            ScaleX = (float)scaleX;
-            ScaleY = (float)scaleY;
-            RotationZ = (float)rotationZ;
-            SortingLayer = sortingLayer;
+            this.environmentId = environmentId;
+            this.prefabId = prefabId;
+            this.positionX = (float)positionX;
+            this.positionY = (float)positionY;
+            this.scaleX = (float)scaleX;
+            this.scaleY = (float)scaleY;
+            this.rotationZ = (float)rotationZ;
+            this.sortingLayer = sortingLayer;
         }
     }
 }
