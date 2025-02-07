@@ -29,7 +29,6 @@ public class DiceDragHandler : MonoBehaviour
     {
         isDragging = false;
 
-        // Save the object when placed
         if (worldManager != null)
         {
             worldManager.SaveObjectToEnvironment(gameObject, prefabId);
