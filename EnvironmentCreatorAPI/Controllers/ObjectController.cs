@@ -80,5 +80,13 @@ namespace EnvironmentCreatorAPI.Controllers
 
             return objects;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetObjects()
+        {
+            var objects = await _context.Object2D.ToListAsync();
+            return Ok(objects);
+        }
+
     }
 }

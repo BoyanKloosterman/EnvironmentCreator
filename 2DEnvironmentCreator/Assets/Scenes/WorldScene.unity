@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &92432744 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4944815743944953060, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &169569680
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,6 +247,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backButton: {fileID: 4478120654190568657}
+  prefab1: {fileID: 1698326095}
+  prefab2: {fileID: 1448468824}
+  prefab3: {fileID: 523609121}
+  prefab4: {fileID: 1066219890}
+  prefab5: {fileID: 919642524}
+  prefab6: {fileID: 92432744}
 --- !u!4 &359909017
 Transform:
   m_ObjectHideFlags: 0
@@ -257,6 +268,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &523609121 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1896875807954303502, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &919642524 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6750839099566720217, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1066219890 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2639869696097237309, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1448468824 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6394091804215900059, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1698326095 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2598984462124886578, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+  m_PrefabInstance: {fileID: 4478120654190568656}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1863810156 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1849161993528017928, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}

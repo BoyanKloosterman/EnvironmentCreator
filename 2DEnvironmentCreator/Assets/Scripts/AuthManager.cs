@@ -14,19 +14,6 @@ public class AuthManager : MonoBehaviour
 
     private string apiUrl = "http://localhost:5067/api/auth";
 
-    [System.Serializable]
-    public class UserData
-    {
-        public string Username;
-        public string Password;
-
-        public UserData(string username, string password)
-        {
-            Username = username;
-            Password = password;
-        }
-    }
-
     public void Register()
     {
         string username = usernameField.text;
@@ -148,7 +135,6 @@ public class AuthManager : MonoBehaviour
             {
                 string token = www.downloadHandler.text;
                 PlayerPrefs.SetString("AuthToken", token);
-
                 PlayerPrefs.Save();
 
                 Debug.Log("Login successful, token saved: " + token);
@@ -161,6 +147,25 @@ public class AuthManager : MonoBehaviour
                 Debug.LogError("Login Error: " + serverResponse);
             }
         }
+    }
+
+    [System.Serializable]
+    public class UserData
+    {
+        public string Username;
+        public string Password;
+
+        public UserData(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
+    }
+
+    public class LoginResponse
+    {
+        public string token;
+        public int userId;
     }
 
 }

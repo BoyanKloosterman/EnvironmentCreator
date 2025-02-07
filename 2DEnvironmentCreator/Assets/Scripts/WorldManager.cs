@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using TMPro;
 using System.Collections.Generic;
 using System;
+using LiteDB;
 
 public class WorldManager : MonoBehaviour
 {
@@ -99,17 +100,16 @@ public class WorldManager : MonoBehaviour
             return; // Make sure the environment is set
         }
 
-        Object2D object2D = new Object2D
-        {
-            EnvironmentId = environmentId,
-            PrefabId = prefabId,
-            PositionX = obj.transform.position.x,
-            PositionY = obj.transform.position.y,
-            ScaleX = obj.transform.localScale.x,
-            ScaleY = obj.transform.localScale.y,
-            RotationZ = obj.transform.rotation.eulerAngles.z,
-            SortingLayer = obj.GetComponent<Renderer>().sortingOrder
-        };
+        Object2D object2D = new Object2D(
+            environmentId,
+            prefabId,
+            obj.transform.position.x,
+            obj.transform.position.y,
+            obj.transform.localScale.x,
+            obj.transform.localScale.y,
+            obj.transform.rotation.eulerAngles.z,
+            obj.GetComponent<Renderer>().sortingOrder
+        );
 
         Debug.Log("Saving object data: " + JsonUtility.ToJson(object2D));
 
@@ -170,7 +170,7 @@ public class WorldManager : MonoBehaviour
         }
 
         // Assuming API URL provides a list of objects
-        string url = $"{apiUrl}/environment/{environmentId}"; // Adjust according to your API
+        string url = $"{apiUrl}/"; // Adjust according to your API
 
         Debug.Log("Requesting objects for environment ID: " + environmentId);
 
@@ -200,7 +200,6 @@ public class WorldManager : MonoBehaviour
 
             // Debug the raw JSON response
             Debug.Log("Response JSON: " + responseJson);
-
             try
             {
                 // Deserialize the response to get objects
@@ -209,9 +208,27 @@ public class WorldManager : MonoBehaviour
                 if (objectWrapper != null && objectWrapper.objects != null)
                 {
                     Debug.Log("Restoring objects...");
+
                     foreach (var objectData in objectWrapper.objects)
                     {
-                        RestoreObject(objectData);
+                        // Log the types of PositionX and ScaleX for each object loaded
+                        Debug.Log($"Restoring object with PrefabId: {objectData.PrefabId}, " +
+                                  $"PositionX type = {objectData.PositionX.GetType()}, " +
+                                  $"ScaleX type = {objectData.ScaleX.GetType()}");
+
+                        // Create a new Object2D instance with the correct types
+                        Object2D correctedObjectData = new Object2D(
+                            objectData.EnvironmentId,
+                            objectData.PrefabId,
+                            (float)objectData.PositionX,
+                            (float)objectData.PositionY,
+                            (float)objectData.ScaleX,
+                            (float)objectData.ScaleY,
+                            (float)objectData.RotationZ,
+                            objectData.SortingLayer
+                            );
+
+                        RestoreObject(correctedObjectData);
                     }
                 }
                 else
@@ -223,6 +240,8 @@ public class WorldManager : MonoBehaviour
             {
                 Debug.LogError("Error parsing JSON response: " + ex.Message);
             }
+
+
         }
         else
         {
@@ -230,7 +249,6 @@ public class WorldManager : MonoBehaviour
             Debug.LogError("Server Response: " + request.downloadHandler.text); // Log server response for more insight
         }
     }
-
 
 
 
@@ -299,5 +317,17 @@ public class WorldManager : MonoBehaviour
         public float RotationZ;
         public int SortingLayer;
 
+        // Constructor to handle double to float conversion
+        public Object2D(int environmentId, int prefabId, double positionX, double positionY, double scaleX, double scaleY, double rotationZ, int sortingLayer)
+        {
+            EnvironmentId = environmentId;
+            PrefabId = prefabId;
+            PositionX = (float)positionX;
+            PositionY = (float)positionY;
+            ScaleX = (float)scaleX;
+            ScaleY = (float)scaleY;
+            RotationZ = (float)rotationZ;
+            SortingLayer = sortingLayer;
+        }
     }
 }
