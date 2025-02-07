@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.Networking;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime;
 
 public class AuthManager : MonoBehaviour
 {
@@ -42,7 +41,7 @@ public class AuthManager : MonoBehaviour
         StartCoroutine(LoginUser(username, password));
     }
 
-    public bool IsPasswordValid(string password, out string errorMessage)
+    private bool IsPasswordValid(string password, out string errorMessage)
     {
         errorMessage = "";
 
@@ -62,36 +61,18 @@ public class AuthManager : MonoBehaviour
             if (!char.IsLetterOrDigit(c)) hasSpecialChar = true;
         }
 
-        if (!hasLowercase)
-        {
-            errorMessage = "Wachtwoord moet minstens ��n kleine letter bevatten.";
-            return false;
-        }
-        if (!hasUppercase)
-        {
-            errorMessage = "Wachtwoord moet minstens ��n hoofdletter bevatten.";
-            return false;
-        }
-        if (!hasDigit)
-        {
-            errorMessage = "Wachtwoord moet minstens ��n cijfer bevatten.";
-            return false;
-        }
-        if (!hasSpecialChar)
-        {
-            errorMessage = "Wachtwoord moet minstens ��n speciaal teken bevatten.";
-            return false;
-        }
+        if (!hasLowercase) errorMessage = "Wachtwoord moet minstens één kleine letter bevatten.";
+        else if (!hasUppercase) errorMessage = "Wachtwoord moet minstens één hoofdletter bevatten.";
+        else if (!hasDigit) errorMessage = "Wachtwoord moet minstens één cijfer bevatten.";
+        else if (!hasSpecialChar) errorMessage = "Wachtwoord moet minstens één speciaal teken bevatten.";
 
-        return true;
+        return string.IsNullOrEmpty(errorMessage);
     }
 
     IEnumerator RegisterUser(string username, string password)
     {
         UserData userData = new UserData(username, password);
         var jsonData = JsonUtility.ToJson(userData);
-
-        Debug.Log("Register JSON Data: " + jsonData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/register", "POST"))
         {
@@ -102,16 +83,11 @@ public class AuthManager : MonoBehaviour
 
             yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                feedbackText.text = "Registratie succesvol!";
-            }
-            else
-            {
-                string serverResponse = www.downloadHandler.text;
-                feedbackText.text = "Registratie mislukt: " + serverResponse;
-                Debug.LogError("Registration Error: " + serverResponse);
-            }
+            feedbackText.text = www.result == UnityWebRequest.Result.Success ?
+                "Registratie succesvol!" : $"Registratie mislukt: {www.downloadHandler.text}";
+
+            if (www.result != UnityWebRequest.Result.Success)
+                Debug.LogError("Registration Error: " + www.downloadHandler.text);
         }
     }
 
@@ -119,8 +95,6 @@ public class AuthManager : MonoBehaviour
     {
         UserData userData = new UserData(username, password);
         var jsonData = JsonUtility.ToJson(userData);
-
-        Debug.Log("Login JSON Data: " + jsonData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/login", "POST"))
         {
@@ -134,29 +108,21 @@ public class AuthManager : MonoBehaviour
             if (www.result == UnityWebRequest.Result.Success)
             {
                 string response = www.downloadHandler.text;
-                Debug.Log("Server Response: " + response);
-
                 LoginResponse loginResponse = JsonUtility.FromJson<LoginResponse>(response);
 
                 PlayerPrefs.SetString("AuthToken", loginResponse.token);
                 PlayerPrefs.SetInt("UserId", loginResponse.userId);
                 PlayerPrefs.Save();
 
-                Debug.Log("Login successful, token and userId saved.");
                 SceneManager.LoadScene("WorldSelectScene");
             }
             else
             {
-                string serverResponse = www.downloadHandler.text;
-                feedbackText.text = "Inloggen mislukt: " + serverResponse;
-                Debug.LogError("Login Error: " + serverResponse);
+                feedbackText.text = "Inloggen mislukt: " + www.downloadHandler.text;
+                Debug.LogError("Login Error: " + www.downloadHandler.text);
             }
         }
-
     }
-
-
-
 
     [System.Serializable]
     public class UserData
@@ -171,10 +137,10 @@ public class AuthManager : MonoBehaviour
         }
     }
 
+    [System.Serializable]
     public class LoginResponse
     {
         public string token;
         public int userId;
     }
-
 }
