@@ -133,11 +133,16 @@ public class AuthManager : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                string token = www.downloadHandler.text;
-                PlayerPrefs.SetString("AuthToken", token);
+                string response = www.downloadHandler.text;
+                Debug.Log("Server Response: " + response);
+
+                LoginResponse loginResponse = JsonUtility.FromJson<LoginResponse>(response);
+
+                PlayerPrefs.SetString("AuthToken", loginResponse.token);
+                PlayerPrefs.SetInt("UserId", loginResponse.userId);
                 PlayerPrefs.Save();
 
-                Debug.Log("Login successful, token saved: " + token);
+                Debug.Log("Login successful, token and userId saved.");
                 SceneManager.LoadScene("WorldSelectScene");
             }
             else
@@ -147,7 +152,11 @@ public class AuthManager : MonoBehaviour
                 Debug.LogError("Login Error: " + serverResponse);
             }
         }
+
     }
+
+
+
 
     [System.Serializable]
     public class UserData
