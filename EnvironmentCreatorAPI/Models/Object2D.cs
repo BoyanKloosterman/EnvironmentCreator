@@ -16,19 +16,19 @@ namespace EnvironmentCreatorAPI.Models
         public int PrefabId { get; set; }
 
         [Required]
-        public float PositionX { get; set; }
+        public double PositionX { get; set; }
 
         [Required]
-        public float PositionY { get; set; }
+        public double PositionY { get; set; }
 
         [Required]
-        public float ScaleX { get; set; }
+        public double ScaleX { get; set; }
 
         [Required]
-        public float ScaleY { get; set; }
+        public double ScaleY { get; set; }
 
         [Required]
-        public float RotationZ { get; set; }
+        public double RotationZ { get; set; }
 
         [Required]
         public int SortingLayer { get; set; }

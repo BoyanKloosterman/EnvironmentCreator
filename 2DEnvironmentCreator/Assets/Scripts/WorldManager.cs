@@ -11,12 +11,10 @@ using LiteDB;
 public class WorldManager : MonoBehaviour
 {
     public Button backButton;
-    private string apiUrl = "http://localhost:5067/api/objects"; // Endpoint for saving objects
+    private string apiUrl = "http://localhost:5067/api/objects";
 
-    // This should be set when loading the world scene
     private int environmentId;
 
-    // Track objects to update their state
     private GameObject currentObject;
     private int currentPrefabId;
 
@@ -32,7 +30,7 @@ public class WorldManager : MonoBehaviour
         Debug.Log("WorldManager started.");
 
         backButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
-        environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0); // Get selected world ID from PlayerPrefs
+        environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0);
 
         Debug.Log("Selected Environment ID: " + environmentId);
 
@@ -47,14 +45,12 @@ public class WorldManager : MonoBehaviour
         }
     }
 
-    // Call this method when you select or spawn an object
     public void SelectObject(GameObject obj, int prefabId)
     {
         Debug.Log("Object selected: " + obj.name + ", Prefab ID: " + prefabId);
         currentObject = obj;
         currentPrefabId = prefabId;
 
-        // Optionally start updating its state
         StartCoroutine(UpdateObjectState());
     }
 
@@ -63,7 +59,7 @@ public class WorldManager : MonoBehaviour
         if (currentObject == null)
         {
             Debug.LogWarning("No object selected for tracking.");
-            yield break; // Exit if no object is selected
+            yield break;
         }
 
         Vector3 lastPosition = currentObject.transform.position;
@@ -74,7 +70,6 @@ public class WorldManager : MonoBehaviour
 
         while (currentObject != null)
         {
-            // If position, scale, or rotation changed, save the object
             if (lastPosition != currentObject.transform.position ||
                 lastScale != currentObject.transform.localScale ||
                 lastRotation != currentObject.transform.rotation)
@@ -88,7 +83,7 @@ public class WorldManager : MonoBehaviour
                 SaveObjectToEnvironment(currentObject, currentPrefabId);
             }
 
-            yield return new WaitForSeconds(0.5f); // Check every 0.5 seconds to reduce the frequency of requests
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -97,7 +92,7 @@ public class WorldManager : MonoBehaviour
         if (environmentId == 0)
         {
             Debug.LogError("Environment ID is not set.");
-            return; // Make sure the environment is set
+            return;
         }
 
         Object2D object2D = new Object2D(
@@ -166,11 +161,10 @@ public class WorldManager : MonoBehaviour
         if (environmentId == 0)
         {
             Debug.LogError("Environment ID is not set.");
-            return; // Make sure the environment is set
+            return;
         }
 
-        // Assuming API URL provides a list of objects
-        string url = $"{apiUrl}/"; // Adjust according to your API
+        string url = $"{apiUrl}/environment/{environmentId}";
 
         Debug.Log("Requesting objects for environment ID: " + environmentId);
 
@@ -198,11 +192,9 @@ public class WorldManager : MonoBehaviour
             Debug.Log("Objects loaded successfully.");
             string responseJson = request.downloadHandler.text;
 
-            // Debug the raw JSON response
             Debug.Log("Response JSON: " + responseJson);
             try
             {
-                // Deserialize the response to get objects
                 Object2DListWrapper objectWrapper = JsonUtility.FromJson<Object2DListWrapper>(responseJson);
 
                 if (objectWrapper != null && objectWrapper.objects != null)
@@ -211,12 +203,10 @@ public class WorldManager : MonoBehaviour
 
                     foreach (var objectData in objectWrapper.objects)
                     {
-                        // Log the types of PositionX and ScaleX for each object loaded
                         Debug.Log($"Restoring object with PrefabId: {objectData.PrefabId}, " +
                                   $"PositionX type = {objectData.PositionX.GetType()}, " +
                                   $"ScaleX type = {objectData.ScaleX.GetType()}");
 
-                        // Create a new Object2D instance with the correct types
                         Object2D correctedObjectData = new Object2D(
                             objectData.EnvironmentId,
                             objectData.PrefabId,
@@ -226,7 +216,7 @@ public class WorldManager : MonoBehaviour
                             (float)objectData.ScaleY,
                             (float)objectData.RotationZ,
                             objectData.SortingLayer
-                            );
+                        );
 
                         RestoreObject(correctedObjectData);
                     }
@@ -240,15 +230,14 @@ public class WorldManager : MonoBehaviour
             {
                 Debug.LogError("Error parsing JSON response: " + ex.Message);
             }
-
-
         }
         else
         {
             Debug.LogError("Error loading objects: " + request.error);
-            Debug.LogError("Server Response: " + request.downloadHandler.text); // Log server response for more insight
+            Debug.LogError("Server Response: " + request.downloadHandler.text);
         }
     }
+
 
 
 
@@ -256,14 +245,12 @@ public class WorldManager : MonoBehaviour
     {
         Debug.Log("Restoring object with PrefabId: " + objectData.PrefabId);
 
-        // Instantiate the object based on prefab ID or whatever method you're using to create objects
         GameObject prefab = GetPrefabById(objectData.PrefabId);
         if (prefab != null)
         {
             GameObject obj = Instantiate(prefab, new Vector3(objectData.PositionX, objectData.PositionY, 0), Quaternion.Euler(0, 0, objectData.RotationZ));
             obj.transform.localScale = new Vector3(objectData.ScaleX, objectData.ScaleY, 1);
 
-            // Optionally set the sorting layer if needed
             obj.GetComponent<Renderer>().sortingOrder = objectData.SortingLayer;
             Debug.Log("Object restored: " + obj.name);
         }
@@ -280,17 +267,17 @@ public class WorldManager : MonoBehaviour
         switch (prefabId)
         {
             case 1:
-                return prefab1; // Dice 1 prefab
+                return prefab1;
             case 2:
-                return prefab2; // Dice 2 prefab
+                return prefab2;
             case 3:
-                return prefab3; // Dice 3 prefab
+                return prefab3;
             case 4:
-                return prefab4; // Dice 4 prefab
+                return prefab4;
             case 5:
-                return prefab5; // Dice 5 prefab
+                return prefab5;
             case 6:
-                return prefab6; // Dice 6 prefab
+                return prefab6;
             default:
                 Debug.LogError("PrefabId not recognized");
                 return null;
