@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnvironmentCreatorAPI.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+abdc89e30f770017b0e52dbd7ca66520c9a791a1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+df51dcde5b3a0581e0de19c5e3dba443b5a00c0a")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnvironmentCreatorAPI.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnvironmentCreatorAPI.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

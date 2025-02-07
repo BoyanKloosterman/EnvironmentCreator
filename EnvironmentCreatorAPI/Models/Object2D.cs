@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+
 
 namespace EnvironmentCreatorAPI.Models
 {
@@ -10,7 +12,6 @@ namespace EnvironmentCreatorAPI.Models
 
         [Required, ForeignKey("Environment2D")]
         public int EnvironmentId { get; set; }
-        public Environment2D Environment { get; set; }
 
         [Required]
         public int PrefabId { get; set; }
@@ -32,5 +33,8 @@ namespace EnvironmentCreatorAPI.Models
 
         [Required]
         public int SortingLayer { get; set; }
+
+        [JsonIgnore]
+        public Environment2D Environment { get; set; }
     }
 }

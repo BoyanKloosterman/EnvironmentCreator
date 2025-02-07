@@ -6,11 +6,10 @@ public class DiceDragHandler : MonoBehaviour
     private Vector3 mouseOffset;
     private bool hasCloned = false;
     private WorldManager worldManager;
-    public int prefabId = 1; // Assign a unique ID for different dice prefabs if needed
+    public int prefabId = 1;
 
     private void Start()
     {
-        // Find the WorldManager in the scene
         worldManager = FindObjectOfType<WorldManager>();
     }
 
