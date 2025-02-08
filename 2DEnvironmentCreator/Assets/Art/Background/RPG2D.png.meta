@@ -384,7 +384,18 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      RPG2D_0: -4875318053349880546
+      RPG2D_1: 1685627171020370509
+      RPG2D_10: -2182299454918672476
+      RPG2D_2: -3807214024988050374
+      RPG2D_3: -4926022740536623730
+      RPG2D_4: -248912533228429446
+      RPG2D_5: 6006527477066614735
+      RPG2D_6: -8494935989771589608
+      RPG2D_7: 5066650995320354009
+      RPG2D_8: 8632800155922546874
+      RPG2D_9: -5636871198335788989
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
