@@ -37,25 +37,15 @@ public class WorldSelect : MonoBehaviour
         {
             try
             {
-                Debug.Log("Response body: " + request.downloadHandler.text);
-
                 List<Environment2D> worlds = JsonConvert.DeserializeObject<List<Environment2D>>(request.downloadHandler.text);
 
-                if (worlds == null)
-                {
-                    throw new System.Exception("Worlds list is null.");
-                }
+                if (worlds == null || worlds.Count == 0)
+                    yield break;
 
-                if (worlds.Count > 0)
-                {
-                    int userId = worlds[0].userId;
-                    PlayerPrefs.SetInt("UserId", userId);
-                    PlayerPrefs.Save();
-                    Debug.Log("UserId saved: " + userId);
-                }
+                PlayerPrefs.SetInt("UserId", worlds[0].userId);
+                PlayerPrefs.Save();
 
-                int count = Mathf.Min(worlds.Count, 5);
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < Mathf.Min(worlds.Count, 5); i++)
                 {
                     AddWorldToUI(worlds[i]);
                 }
@@ -68,7 +58,6 @@ public class WorldSelect : MonoBehaviour
         else
         {
             Debug.LogError("Error fetching worlds: " + request.error);
-            Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
 
@@ -76,53 +65,32 @@ public class WorldSelect : MonoBehaviour
     {
         GameObject obj = Instantiate(worldPrefab, worldsPanel);
 
-        // Find the components
         TextMeshProUGUI nameText = obj.transform.Find("WorldName")?.GetComponent<TextMeshProUGUI>();
-        Button worldButton = obj.GetComponent<Button>(); // Assuming the entire prefab is a button
+        Button worldButton = obj.GetComponent<Button>();
         Button deleteButton = obj.transform.Find("DeleteButton")?.GetComponent<Button>();
 
-        // Set the name text
         if (nameText != null)
         {
             nameText.text = world.name;
         }
-        else
-        {
-            Debug.LogError("WorldName TextMeshProUGUI not found in the prefab.");
-        }
 
-        // Add a listener to the world button to load the environment scene
         if (worldButton != null)
         {
             worldButton.onClick.AddListener(() => OnWorldButtonClicked(world.environmentId));
         }
-        else
-        {
-            Debug.LogError("World Button not found in the prefab.");
-        }
 
-        // Set up the delete button
         if (deleteButton != null)
         {
             deleteButton.onClick.AddListener(() => StartCoroutine(DeleteWorld(world.environmentId, obj)));
         }
-        else
-        {
-            Debug.LogError("DeleteButton not found in the prefab.");
-        }
     }
 
-    // Method to handle when the world button is clicked
     void OnWorldButtonClicked(int environmentId)
     {
-        // Assuming you want to load a scene based on the environmentId, you can load a scene like this
-        // For example, use the environmentId to load the scene dynamically or pass it through the scene manager
-        PlayerPrefs.SetInt("SelectedEnvironmentId", environmentId); // Save the selected environmentId to PlayerPrefs
+        PlayerPrefs.SetInt("SelectedEnvironmentId", environmentId);
         PlayerPrefs.Save();
-        Debug.Log("Selected world ID saved: " + environmentId);
-        SceneManager.LoadScene("WorldScene"); // Load the scene where the environmentId will be used
+        SceneManager.LoadScene("WorldScene");
     }
-
 
     IEnumerator DeleteWorld(int environmentId, GameObject worldObject)
     {
@@ -134,13 +102,11 @@ public class WorldSelect : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("World deleted successfully.");
             Destroy(worldObject);
         }
         else
         {
             Debug.LogError("Error deleting world: " + request.error);
-            Debug.LogError("Response body: " + request.downloadHandler.text);
         }
     }
 

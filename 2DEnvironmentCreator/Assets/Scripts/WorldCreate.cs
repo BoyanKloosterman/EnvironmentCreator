@@ -24,9 +24,11 @@ public class WorldCreate : MonoBehaviour
     void CreateWorld()
     {
         string name = nameInput.text.Trim();
-        int length = int.Parse(lengthInput.text);
-        int width = int.Parse(widthInput.text);
-        int userId = PlayerPrefs.GetInt("UserId");
+        if (!int.TryParse(lengthInput.text, out int length) || !int.TryParse(widthInput.text, out int width))
+        {
+            feedbackText.text = "Vul geldige getallen in voor lengte en breedte.";
+            return;
+        }
 
         if (string.IsNullOrEmpty(name) || length <= 0 || width <= 0)
         {
@@ -34,6 +36,7 @@ public class WorldCreate : MonoBehaviour
             return;
         }
 
+        int userId = PlayerPrefs.GetInt("UserId");
         StartCoroutine(PostWorld(name, length, width, userId));
     }
 
@@ -48,12 +51,11 @@ public class WorldCreate : MonoBehaviour
         };
 
         string jsonData = JsonConvert.SerializeObject(worldData);
-        Debug.Log("JsonData: " + jsonData);
-
-        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
+        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken"));
 
@@ -66,11 +68,8 @@ public class WorldCreate : MonoBehaviour
         }
         else
         {
+            feedbackText.text = "Fout bij het aanmaken van de wereld.";
             Debug.LogError("Server Response: " + request.downloadHandler.text);
-            feedbackText.text = "Fout bij het aanmaken van de wereld: " + request.downloadHandler.text;
         }
     }
-
-
 }
-
