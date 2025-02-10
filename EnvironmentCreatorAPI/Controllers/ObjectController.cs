@@ -27,7 +27,7 @@ namespace EnvironmentCreatorAPI.Controllers
                 return BadRequest("Object data is invalid.");
             }
 
-            var environment = await _context.Worlds.FindAsync(objectDto.EnvironmentId);
+            var environment = await _context.Environments.FindAsync(objectDto.EnvironmentId);
             if (environment == null)
             {
                 return NotFound("Environment not found.");
@@ -45,7 +45,7 @@ namespace EnvironmentCreatorAPI.Controllers
                 SortingLayer = objectDto.SortingLayer
             };
 
-            _context.Object2D.Add(object2D);
+            _context.Objects.Add(object2D);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetObjectById), new { id = object2D.ObjectId }, object2D);
@@ -55,7 +55,7 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Object2D>> GetObjectById(int id)
         {
-            var object2D = await _context.Object2D.FindAsync(id);
+            var object2D = await _context.Objects.FindAsync(id);
 
             if (object2D == null)
             {
@@ -69,7 +69,7 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpGet("environment/{environmentId}")]
         public async Task<ActionResult<IEnumerable<Object2D>>> GetObjectsByEnvironment(int environmentId)
         {
-            var objects = await _context.Object2D
+            var objects = await _context.Objects
                                          .Where(o => o.EnvironmentId == environmentId)
                                          .ToListAsync();
 
@@ -84,7 +84,7 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetObjects()
         {
-            var objects = await _context.Object2D.ToListAsync();
+            var objects = await _context.Objects.ToListAsync();
             return Ok(objects);
         }
 

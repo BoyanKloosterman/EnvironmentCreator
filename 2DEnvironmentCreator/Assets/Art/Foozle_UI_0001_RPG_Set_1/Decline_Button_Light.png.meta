@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Decline_Button_Light_0: 2302444194237203688
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

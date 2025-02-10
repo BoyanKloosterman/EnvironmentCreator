@@ -14,7 +14,7 @@ public class WorldCreate : MonoBehaviour
     public Button createButton;
     public TextMeshProUGUI feedbackText;
 
-    private string apiUrl = "http://localhost:5067/api/worlds";
+    private string apiUrl = "http://localhost:5067/api/environment";
 
     void Start()
     {

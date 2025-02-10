@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Exit_Button_Dark_0: -690662953614972342
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

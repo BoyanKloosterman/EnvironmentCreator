@@ -12,7 +12,7 @@ public class WorldSelect : MonoBehaviour
     public GameObject worldPrefab;
     public Transform worldsPanel;
     public Button createWorldButton;
-    private string apiUrl = "http://localhost:5067/api/worlds";
+    private string apiUrl = "http://localhost:5067/api/environment";
 
     void Start()
     {

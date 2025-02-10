@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Main_Button_Overlay_Light_0: 436932853445487409
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
