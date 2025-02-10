@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public class WorldCreate : MonoBehaviour
 {
     public TMP_InputField nameInput;
-    public TMP_InputField lengthInput;
+    public TMP_InputField heightInput;
     public TMP_InputField widthInput;
     public Button createButton;
     public TextMeshProUGUI feedbackText;
@@ -24,29 +24,29 @@ public class WorldCreate : MonoBehaviour
     void CreateWorld()
     {
         string name = nameInput.text.Trim();
-        if (!int.TryParse(lengthInput.text, out int length) || !int.TryParse(widthInput.text, out int width))
+        if (!int.TryParse(heightInput.text, out int height) || !int.TryParse(widthInput.text, out int width))
         {
             feedbackText.text = "Vul geldige getallen in voor lengte en breedte.";
             return;
         }
 
-        if (string.IsNullOrEmpty(name) || length <= 0 || width <= 0)
+        if (string.IsNullOrEmpty(name) || height <= 0 || width <= 0)
         {
             feedbackText.text = "Vul alle velden correct in.";
             return;
         }
 
         int userId = PlayerPrefs.GetInt("UserId");
-        StartCoroutine(PostWorld(name, length, width, userId));
+        StartCoroutine(PostWorld(name, height, width, userId));
     }
 
-    IEnumerator PostWorld(string name, int length, int width, int userId)
+    IEnumerator PostWorld(string name, int height, int width, int userId)
     {
         var worldData = new
         {
             Name = name,
-            MaxLength = length,
-            MaxHeight = width,
+            MaxHeight = height,
+            MaxWidth = width,
             UserId = userId
         };
 

@@ -253,7 +253,7 @@ GameObject:
   - component: {fileID: 44688019}
   - component: {fileID: 44688018}
   m_Layer: 5
-  m_Name: InputField Length
+  m_Name: InputField Height
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1169,8 +1169,8 @@ RectTransform:
   - {fileID: 1062666796}
   - {fileID: 2038492376}
   - {fileID: 1246733781}
-  - {fileID: 44688017}
   - {fileID: 1363769140}
+  - {fileID: 44688017}
   - {fileID: 1776191372}
   - {fileID: 154653321}
   - {fileID: 37673342}
@@ -2360,7 +2360,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter Length...
+  m_text: Enter Height....
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2956,10 +2956,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nameInput: {fileID: 1246733782}
-  lengthInput: {fileID: 44688018}
+  heightInput: {fileID: 44688018}
   widthInput: {fileID: 1363769141}
   createButton: {fileID: 1776191373}
-  backButton: {fileID: 37673343}
   feedbackText: {fileID: 154653319}
 --- !u!1 &2038492375
 GameObject:

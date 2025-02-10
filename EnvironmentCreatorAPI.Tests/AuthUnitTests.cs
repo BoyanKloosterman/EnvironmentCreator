@@ -53,7 +53,6 @@ namespace EnvironmentCreatorAPI.Tests
             _controller = new AuthController(_context, _mockConfig.Object, _mockLogger.Object);
         }
 
-
         [TestMethod]
         public void Register_ShouldReturnOk_WhenUserIsRegisteredSuccessfully()
         {
@@ -72,6 +71,11 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
             Assert.AreEqual("Registratie succesvol.", okResult.Value);
+
+            // Additional criteria
+            var newUser = _context.Users.FirstOrDefault(u => u.Username == userDto.Username);
+            Assert.IsNotNull(newUser, "New user should be added to the database.");
+            Assert.IsTrue(BCrypt.Net.BCrypt.Verify("newPassword", newUser.PasswordHash), "Password should be hashed correctly.");
         }
 
         [TestMethod]
@@ -92,6 +96,10 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
             Assert.AreEqual("Gebruikersnaam bestaat al.", badRequestResult.Value);
+
+            // Additional criteria
+            var userCount = _context.Users.Count(u => u.Username == userDto.Username);
+            Assert.AreEqual(1, userCount, "There should still be only one user with the same username.");
         }
 
         [TestMethod]
@@ -115,8 +123,12 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(okResult, "Result should be an OkObjectResult");
             Assert.AreEqual(200, okResult.StatusCode);
             Assert.IsTrue(okResult.Value.ToString().StartsWith("eyJ"), "JWT token should start with 'eyJ'");
-        }
 
+            // Additional criteria
+            var token = okResult.Value.ToString();
+            Assert.IsNotNull(token, "JWT token should not be null.");
+            Assert.IsTrue(token.Length > 0, "JWT token should not be empty.");
+        }
 
         [TestMethod]
         public void Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
@@ -132,6 +144,10 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(unauthorizedResult);
             Assert.AreEqual(401, unauthorizedResult.StatusCode);
             Assert.AreEqual("Invalid credentials.", unauthorizedResult.Value);
+
+            // Additional criteria
+            var user = _context.Users.FirstOrDefault(u => u.Username == loginDto.Username);
+            Assert.IsNull(user, "User should not exist in the database.");
         }
 
         [TestMethod]
@@ -145,6 +161,10 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
             Assert.AreEqual("Invalid request body.", badRequestResult.Value);
+
+            // Additional criteria
+            var userCount = _context.Users.Count();
+            Assert.AreEqual(1, userCount, "User count should remain unchanged.");
         }
     }
 }

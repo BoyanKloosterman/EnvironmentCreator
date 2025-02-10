@@ -17,10 +17,10 @@ namespace EnvironmentCreatorAPI.Models
         public string Name { get; set; }
 
         [Required]
-        public int MaxHeight { get; set; }
+        public int MaxWidth { get; set; }
 
         [Required]
-        public int MaxLength { get; set; }
+        public int MaxHeight { get; set; }
 
         public ICollection<Object2D> Objects { get; set; } = new List<Object2D>();
     }
