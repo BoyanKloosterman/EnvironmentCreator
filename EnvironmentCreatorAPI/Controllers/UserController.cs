@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Text;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using BCrypt.Net;
 using System.Diagnostics;
 
@@ -77,7 +79,7 @@ namespace EnvironmentCreatorAPI.Controllers
 
         public class LoginResponse
         {
-            public string Token { get; set; }
+            public required string Token { get; set; }
             public int UserId { get; set; }
         }
 
