@@ -495,3 +495,5 @@ C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin
 C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.JsonPatch.dll
 C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll
+C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin\Debug\net8.0\packages\Microsoft.AspNetCore.Razor.Design.2.3.0\tools\rzc.deps.json
+C:\Users\kloos\Documents\Apps\EnvironmentCreator\EnvironmentCreatorAPI.Tests\bin\Debug\net8.0\packages\Microsoft.AspNetCore.Razor.Design.2.3.0\tools\rzc.runtimeconfig.json

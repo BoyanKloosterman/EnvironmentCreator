@@ -15,42 +15,37 @@ namespace EnvironmentCreatorAPI.Tests
     public class AuthControllerTests
     {
         private Mock<IConfiguration> _mockConfig;
-        private Mock<ILogger<AuthController>> _mockLogger;
-        private AuthController _controller;
+        private Mock<ILogger<UserController>> _mockLogger;
+        private UserController _controller;
         private ApplicationDbContext _context;
 
         [TestInitialize]
         public void Setup()
         {
-            // Set up an in-memory database for testing
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase("TestDatabase" + Guid.NewGuid()) // Unique name for each test
+                .UseInMemoryDatabase("TestDatabase" + Guid.NewGuid())
                 .Options;
 
             _context = new ApplicationDbContext(options);
 
-            // Clear any existing users to ensure a clean state
-            _context.Database.EnsureDeleted(); // Ensures the database is emptied
-            _context.Database.EnsureCreated(); // Recreates the database
 
-            // Seed the database with a test user
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+
             _context.Users.Add(new User
             {
-                UserId = 1, // Ensure this UserId does not conflict with others
+                UserId = 1,
                 Username = "validUser",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("validPassword")
             });
             _context.SaveChanges();
 
-            // Mocking IConfiguration for JWT secret key
             _mockConfig = new Mock<IConfiguration>();
             _mockConfig.Setup(config => config["JwtSettings:SecretKey"]).Returns("YourSecretKey");
 
-            // Mocking ILogger for AuthController
-            _mockLogger = new Mock<ILogger<AuthController>>();
+            _mockLogger = new Mock<ILogger<UserController>>();
 
-            // Initialize the controller with the in-memory database context
-            _controller = new AuthController(_context, _mockConfig.Object, _mockLogger.Object);
+            _controller = new UserController(_context, _mockConfig.Object, _mockLogger.Object);
         }
 
         [TestMethod]
@@ -59,7 +54,6 @@ namespace EnvironmentCreatorAPI.Tests
             // Arrange
             var userDto = new UserDTO { Username = "newUser", Password = "newPassword" };
 
-            // Ensure the user does not already exist in the context
             var userExists = _context.Users.Any(u => u.Username == userDto.Username);
             Assert.IsFalse(userExists, "User should not already exist.");
 
