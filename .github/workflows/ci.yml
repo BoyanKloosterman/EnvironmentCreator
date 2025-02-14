@@ -1,0 +1,43 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup-unity@v2
+        with:
+          version: '6000.0.36f1' 
+          license: ${{ secrets.UNITY_LICENSE }}
+
+      - name: Build Unity Project
+        run: |
+          unity -quit -batchmode -projectPath $(pwd)/2DEnvironmentCreator -executeMethod BuildScript.PerformBuild
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0' 
+
+      - name: Restore Dependencies for API
+        run: dotnet restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.csproj
+
+      - name: Build API Project
+        run: dotnet build ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.csproj --configuration Release
+
+      - name: Run API Unit Tests
+        run: dotnet test ./EnvironmentCreatorAPI.Tests/EnvironmentCreatorAPI.Tests.csproj --configuration Release
+
+  
