@@ -14,10 +14,10 @@ namespace EnvironmentCreatorAPI.Tests
     [TestClass]
     public class AuthControllerTests
     {
-        private Mock<IConfiguration> _mockConfig;
-        private Mock<ILogger<UserController>> _mockLogger;
-        private UserController _controller;
-        private ApplicationDbContext _context;
+        private Mock<IConfiguration> _mockConfig = null!;
+        private Mock<ILogger<UserController>> _mockLogger = null!;
+        private UserController _controller = null!;
+        private ApplicationDbContext _context = null!;
 
         [TestInitialize]
         public void Setup()
@@ -176,12 +176,11 @@ namespace EnvironmentCreatorAPI.Tests
             var user = _context.Users.FirstOrDefault(u => u.Username == loginDto.Username);
             Assert.IsNull(user, "User should not exist in the database.");
         }
-
         [TestMethod]
         public void Login_ShouldReturnBadRequest_WhenRequestBodyIsInvalid()
         {
             // Act
-            var result = _controller.Login(null); // Passing null to simulate invalid body
+            var result = _controller.Login(new UserDTO());
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;

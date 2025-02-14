@@ -17,9 +17,9 @@ namespace EnvironmentCreatorAPI.Tests
     [TestClass]
     public class EnvironmentControllerTests
     {
-        private Mock<ILogger<EnvironmentController>> _mockLogger;
-        private EnvironmentController _controller;
-        private ApplicationDbContext _context;
+        private Mock<ILogger<EnvironmentController>> _mockLogger = new();
+        private EnvironmentController _controller = null!;
+        private ApplicationDbContext _context = null!;
 
         [TestInitialize]
         public void Setup()

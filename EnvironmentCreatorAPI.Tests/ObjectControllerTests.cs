@@ -15,8 +15,8 @@ namespace EnvironmentCreatorAPI.Tests
     [TestClass]
     public class ObjectsControllerTests
     {
-        private ObjectsController _controller;
-        private ApplicationDbContext _context;
+        private ObjectsController _controller = null!;
+        private ApplicationDbContext _context = null!;
 
         [TestInitialize]
         public void Setup()
@@ -73,13 +73,17 @@ namespace EnvironmentCreatorAPI.Tests
         [TestMethod]
         public async Task PostObject_ShouldReturnBadRequest_WhenObjectDtoIsNull()
         {
-            var result = await _controller.PostObject(null);
+            Object2DDto? objectDto = null;
+            var result = await _controller.PostObject(objectDto!);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
             Assert.AreEqual("Object data is invalid.", badRequestResult.Value);
         }
+
+
+
 
         [TestMethod]
         public async Task PostObject_ShouldReturnNotFound_WhenEnvironmentDoesNotExist()

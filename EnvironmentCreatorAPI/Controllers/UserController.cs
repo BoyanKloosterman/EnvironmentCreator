@@ -51,7 +51,7 @@ namespace EnvironmentCreatorAPI.Controllers
         {
             try
             {
-                if (loginDto == null)
+                if (loginDto == null || string.IsNullOrEmpty(loginDto.Username) || string.IsNullOrEmpty(loginDto.Password))
                 {
                     return BadRequest("Invalid request body.");
                 }
@@ -77,6 +77,7 @@ namespace EnvironmentCreatorAPI.Controllers
             }
         }
 
+
         public class LoginResponse
         {
             public required string Token { get; set; }
@@ -86,15 +87,21 @@ namespace EnvironmentCreatorAPI.Controllers
 
         private string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]));
+            var secretKey = _config["JwtSettings:SecretKey"];
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("JWT Secret Key is not configured.");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
-                new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
-                };
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
+        new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
+    };
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -103,6 +110,5 @@ namespace EnvironmentCreatorAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
