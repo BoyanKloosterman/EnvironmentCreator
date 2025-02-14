@@ -11,7 +11,7 @@ public class AuthManager : MonoBehaviour
     public InputField passwordField;
     public TextMeshProUGUI feedbackText;
 
-    private string apiUrl = "http://localhost:5067/api/auth";
+    private string apiUrl = "http://localhost:5067/api/user";
 
     public void Register()
     {

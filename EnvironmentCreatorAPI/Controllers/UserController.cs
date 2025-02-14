@@ -13,13 +13,13 @@ namespace EnvironmentCreatorAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _config;
-        private readonly ILogger<AuthController> _logger;
+        private readonly ILogger<UserController> _logger;
 
-        public AuthController(ApplicationDbContext context, IConfiguration config, ILogger<AuthController> logger)
+        public UserController(ApplicationDbContext context, IConfiguration config, ILogger<UserController> logger)
         {
             _context = context;
             _config = config;
@@ -89,7 +89,7 @@ namespace EnvironmentCreatorAPI.Controllers
 
             var claims = new[] {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // UserId as claim
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
                 new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
                 };

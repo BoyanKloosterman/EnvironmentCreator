@@ -62,24 +62,25 @@ namespace EnvironmentCreatorAPI.Controllers
                 return NotFound();
             }
 
-            return object2D;
+            return Ok(object2D);
         }
 
         // GET all objects for a specific environment
         [HttpGet("environment/{environmentId}")]
-        public async Task<ActionResult<IEnumerable<Object2D>>> GetObjectsByEnvironment(int environmentId)
+        public async Task<ActionResult<List<Object2D>>> GetObjectsByEnvironment(int environmentId)
         {
             var objects = await _context.Objects
-                                         .Where(o => o.EnvironmentId == environmentId)
-                                         .ToListAsync();
+                .Where(o => o.EnvironmentId == environmentId)
+                .ToListAsync();
 
             if (objects == null || objects.Count == 0)
             {
-                return NotFound($"No objects found for environment with ID {environmentId}.");
+                return NotFound("No objects found for this environment.");
             }
 
-            return objects;
+            return Ok(objects);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetObjects()

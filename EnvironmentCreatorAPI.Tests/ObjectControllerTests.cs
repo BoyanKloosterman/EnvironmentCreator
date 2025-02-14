@@ -178,7 +178,7 @@ namespace EnvironmentCreatorAPI.Tests
             var notFoundResult = result.Result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual(404, notFoundResult.StatusCode);
-            Assert.AreEqual("No objects found for environment with ID 1.", notFoundResult.Value);
+            Assert.AreEqual("No objects found for this environment.", notFoundResult.Value);
         }
 
         [TestMethod]

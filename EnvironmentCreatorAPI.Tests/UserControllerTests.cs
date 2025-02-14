@@ -41,7 +41,10 @@ namespace EnvironmentCreatorAPI.Tests
             _context.SaveChanges();
 
             _mockConfig = new Mock<IConfiguration>();
-            _mockConfig.Setup(config => config["JwtSettings:SecretKey"]).Returns("YourSecretKey");
+            _mockConfig.Setup(config => config["JwtSettings:SecretKey"]).Returns(
+            "ThisIsASecretKeyThatIsAtLeast32BytesLongAndSecure"
+            );
+
 
             _mockLogger = new Mock<ILogger<UserController>>();
 
@@ -100,29 +103,59 @@ namespace EnvironmentCreatorAPI.Tests
         public void Login_ShouldReturnOk_WhenUserCredentialsAreValid()
         {
             // Arrange
-            var loginDto = new UserDTO { Username = "validUser", Password = "validPassword" };
+            var username = "validUser";
+            var password = "validPassword";
 
-            // Ensure the user exists
-            var user = _context.Users.FirstOrDefault(u => u.Username == loginDto.Username);
-            Assert.IsNotNull(user, "User should exist in the database");
+            // Ensure user exists with a properly hashed password
+            if (!_context.Users.Any(u => u.Username == username))
+            {
+                var user = new User
+                {
+                    Username = username,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(password) // Hash the password
+                };
+                _context.Users.Add(user);
+                _context.SaveChanges();
+            }
+
+            var loginDto = new UserDTO { Username = username, Password = password };
+
+            // Ensure user exists before attempting login
+            var userInDb = _context.Users.FirstOrDefault(u => u.Username == username);
+            Assert.IsNotNull(userInDb, "User should exist in the database");
+            Console.WriteLine($"User found: {userInDb.Username}, Hash: {userInDb.PasswordHash}");
 
             // Act
             var result = _controller.Login(loginDto);
 
-            // Log the result for debugging
-            Console.WriteLine($"Result: {result.GetType().Name}"); // Debugging line
+            // Ensure result is not null
+            Assert.IsNotNull(result, "Login result should not be null");
 
-            // Assert
+            // Log result type
+            Console.WriteLine($"Actual result type: {result.GetType().Name}");
+
+            if (result is ObjectResult objectResult)
+            {
+                Console.WriteLine($"ObjectResult Status Code: {objectResult.StatusCode}");
+                Console.WriteLine($"ObjectResult Value: {objectResult.Value}");
+            }
+
+            // Assert that result is an OkObjectResult
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult, "Result should be an OkObjectResult");
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.IsTrue(okResult.Value.ToString().StartsWith("eyJ"), "JWT token should start with 'eyJ'");
+            Assert.IsNotNull(okResult, $"Expected OkObjectResult but got {result.GetType().Name}");
 
-            // Additional criteria
-            var token = okResult.Value.ToString();
-            Assert.IsNotNull(token, "JWT token should not be null.");
-            Assert.IsTrue(token.Length > 0, "JWT token should not be empty.");
+            // Ensure status code is 200
+            Assert.AreEqual(200, okResult.StatusCode, "Expected status code 200");
+
+            // Ensure the response contains a valid JWT token
+            var loginResponse = okResult.Value as UserController.LoginResponse;
+            Assert.IsNotNull(loginResponse, "Expected LoginResponse object");
+            Assert.IsFalse(string.IsNullOrEmpty(loginResponse.Token), "JWT token should not be null or empty");
+            Assert.IsTrue(loginResponse.Token.StartsWith("eyJ"), "JWT token should start with 'eyJ'");
+
+            Console.WriteLine($"JWT Token: {loginResponse.Token}");
         }
+
 
         [TestMethod]
         public void Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
