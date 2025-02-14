@@ -16,20 +16,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # - name: Setup Unity
-      #   uses: game-ci/unity-actions/setup-unity@v2
-      #   with:
-      #     version: '6000.0.36f1' 
-      #     license: ${{ secrets.UNITY_LICENSE }}
-
-      # - name: Build Unity Project
-      #   run: |
-      #     unity -quit -batchmode -projectPath $(pwd)/2DEnvironmentCreator -executeMethod BuildScript.PerformBuild
+      - name: Upload Unity License
+        uses: actions/upload-artifact@v3
+        with:
+          name: unity-license
+          path: 'C:/Program Files/Unity/Hub/Editor/6000.0.36f1/Editor/Data/Resources/PackageManager/Diagnostics/unity_license.json'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0' 
+          dotnet-version: '8.0'
 
       - name: Restore Dependencies for API
         run: dotnet restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.csproj
@@ -40,4 +36,17 @@ jobs:
       - name: Run API Unit Tests
         run: dotnet test ./EnvironmentCreatorAPI.Tests/EnvironmentCreatorAPI.Tests.csproj --configuration Release
 
-  
+      - name: Download Unity License
+        uses: actions/download-artifact@v3
+        with:
+          name: unity-license
+
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup-unity@v2
+        with:
+          version: '6000.0.36f1'  
+          license: ./unity_license.json
+
+      - name: Build Unity Project
+        run: |
+          unity -quit -batchmode -projectPath $(pwd)/2DEnvironmentCreator -executeMethod BuildScript.PerformBuild
