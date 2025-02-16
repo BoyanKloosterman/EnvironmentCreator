@@ -10,7 +10,7 @@ public class DiceDragHandler : MonoBehaviour
 
     private void Start()
     {
-        worldManager = FindObjectOfType<WorldManager>();
+        worldManager = FindFirstObjectByType<WorldManager>();
     }
 
     private void OnMouseDown()
