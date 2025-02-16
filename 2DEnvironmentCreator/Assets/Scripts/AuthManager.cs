@@ -13,6 +13,20 @@ public class AuthManager : MonoBehaviour
 
     private string apiUrl = "http://localhost:5067/api/user";
 
+    private void Start()
+    {
+        AutoLoginAsAdmin();
+    }
+
+    private void AutoLoginAsAdmin()
+    {
+        string username = "MiepMap123!";
+        string password = "MiepMap123!";
+
+
+        feedbackText.text = "Logged in as Admin!";
+        StartCoroutine(LoginUser(username, password));
+    }
     public void Register()
     {
         string username = usernameField.text;
