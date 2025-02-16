@@ -21,7 +21,7 @@ namespace EnvironmentCreatorAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateWorld([FromBody] Environment2D world)
+        public IActionResult CreateEnvironment([FromBody] Environment2D world)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
@@ -47,7 +47,7 @@ namespace EnvironmentCreatorAPI.Controllers
 
 
         [HttpGet]
-        public IActionResult GetWorlds()
+        public IActionResult GetEnvironments()
         {
             try
             {
@@ -81,14 +81,23 @@ namespace EnvironmentCreatorAPI.Controllers
 
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteWorld(int id)
+        public async Task<IActionResult> DeleteEnvironment(int id)
         {
-            var world = _context.Environments.Find(id);
-            if (world == null) return NotFound();
+            var environment = await _context.Environments.FindAsync(id);
+            if (environment == null)
+            {
+                return NotFound("Environment not found.");
+            }
 
-            _context.Environments.Remove(world);
-            _context.SaveChanges();
-            return Ok("Wereld verwijderd.");
+            var objectsToDelete = _context.Objects.Where(o => o.EnvironmentId == id);
+            _context.Objects.RemoveRange(objectsToDelete);
+
+            _context.Environments.Remove(environment);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
+
     }
 }
