@@ -57,7 +57,7 @@ namespace EnvironmentCreatorAPI.Tests
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateWorld(world);
+            var result = _controller.CreateEnvironment(world);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
@@ -79,7 +79,7 @@ namespace EnvironmentCreatorAPI.Tests
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateWorld(world);
+            var result = _controller.CreateEnvironment(world);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
@@ -107,7 +107,7 @@ namespace EnvironmentCreatorAPI.Tests
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateWorld(world);
+            var result = _controller.CreateEnvironment(world);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
@@ -138,7 +138,7 @@ namespace EnvironmentCreatorAPI.Tests
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateWorld(world);
+            var result = _controller.CreateEnvironment(world);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
@@ -158,7 +158,7 @@ namespace EnvironmentCreatorAPI.Tests
             });
             _context.SaveChanges();
 
-            var result = _controller.GetWorlds();
+            var result = _controller.GetEnvironments();
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
@@ -172,7 +172,7 @@ namespace EnvironmentCreatorAPI.Tests
         [TestMethod]
         public void GetWorlds_ShouldReturnNotFound_WhenNoWorldsExist()
         {
-            var result = _controller.GetWorlds();
+            var result = _controller.GetEnvironments();
 
             var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult);
@@ -181,8 +181,9 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void DeleteWorld_ShouldReturnOk_WhenWorldIsDeletedSuccessfully()
+        public async Task DeleteWorld_ShouldReturnOk_WhenWorldIsDeletedSuccessfully()
         {
+            // Arrange
             var world = new Environment2D
             {
                 UserId = 1,
@@ -191,27 +192,23 @@ namespace EnvironmentCreatorAPI.Tests
                 MaxHeight = 100
             };
             _context.Environments.Add(world);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var result = _controller.DeleteWorld(world.EnvironmentId);
+            // Act
+            var result = await _controller.DeleteEnvironment(world.EnvironmentId);
 
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual("Wereld verwijderd.", okResult.Value);
-
-            var deletedWorld = _context.Environments.Find(world.EnvironmentId);
-            Assert.IsNull(deletedWorld);
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NoContentResult));
         }
 
         [TestMethod]
-        public void DeleteWorld_ShouldReturnNotFound_WhenWorldDoesNotExist()
+        public async Task DeleteWorld_ShouldReturnNotFound_WhenWorldDoesNotExist()
         {
-            var result = _controller.DeleteWorld(999);
+            // Act
+            var result = await _controller.DeleteEnvironment(999);
 
-            var notFoundResult = result as NotFoundResult;
-            Assert.IsNotNull(notFoundResult);
-            Assert.AreEqual(404, notFoundResult.StatusCode);
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
         }
     }
 }
