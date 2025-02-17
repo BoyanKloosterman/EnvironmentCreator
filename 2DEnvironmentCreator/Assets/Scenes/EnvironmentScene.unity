@@ -1725,6 +1725,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 315060122}
   m_CullTransparentMesh: 1
+--- !u!1 &316787120
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 316787121}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &316787121
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 316787120}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1697.4125, y: 1218.4393, z: -26.956448}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &333739970
 GameObject:
   m_ObjectHideFlags: 0
@@ -2995,17 +3026,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed7af91da47542c458089699868ab419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryUI: {fileID: 0}
-  inventorySlot: []
-  inventoryItem: {fileID: 0}
-  MaxAmount: 0
-  CurrentlyHoveredInventorySlot: {fileID: 0}
-  CurrentlySelectedInventoryItem: {fileID: 0}
-  CurrentlySelectedToolBar: 0
-  IsHoveringDropBox: 0
-  IsHoveringTrashcan: 0
-  IsDragging: 0
-  IsClicking: 0
 --- !u!1 &534356737
 GameObject:
   m_ObjectHideFlags: 0
@@ -5902,7 +5922,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54614746f56f378458ba028c23b4e002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory: {fileID: 1341205501}
+  inventory: {fileID: 1072431016}
 --- !u!4 &1261772086
 Transform:
   m_ObjectHideFlags: 0
@@ -6432,7 +6452,7 @@ GameObject:
   - component: {fileID: 1294284950}
   - component: {fileID: 1294284949}
   m_Layer: 8
-  m_Name: Button
+  m_Name: CloseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10360,3 +10380,4 @@ SceneRoots:
   - {fileID: 1085352503}
   - {fileID: 656531098}
   - {fileID: 1261772086}
+  - {fileID: 316787121}

@@ -1,39 +1,36 @@
+using NUnit.Framework;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
-    public GameObject inventory; // Reference to the inventory Canvas
+    public GameObject inventory;
 
-    void Awake()
+    public List<SlotsUI> slots = new List<SlotsUI>();
+
+    private void Awake()
     {
-        // Hide the inventory in the editor (before playing)
-#if UNITY_EDITOR
         inventory.SetActive(false);
-#endif
-    }
-
-    void Start()
-    {
-        // Hide inventory at the start of the game when the game is playing
-        if (Application.isPlaying)
-        {
-            inventory.SetActive(false);
-        }
     }
 
     void Update()
     {
-        // Check if the Tab key is pressed during play mode
-        if (Application.isPlaying && Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleInventory();
         }
     }
 
     // Toggle the inventory visibility
-    void ToggleInventory()
+    public void ToggleInventory()
     {
-        // Toggle the active state of the inventory
-        inventory.SetActive(!inventory.activeSelf);
+        if (!inventory.activeSelf)
+        {
+            inventory.SetActive(true);
+        }
+        else
+        {
+            inventory.SetActive(false);
+        }
     }
 }
