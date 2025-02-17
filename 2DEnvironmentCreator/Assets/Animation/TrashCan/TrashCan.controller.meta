@@ -1,9 +1,8 @@
 fileFormatVersion: 2
-guid: c8d12adcee749c344b8117cf7c7eb912
-ShaderImporter:
+guid: 11ea10df78f0a064b880e6f0f46d7d2b
+NativeFormatImporter:
   externalObjects: {}
-  defaultTextures: []
-  nonModifiableTextures: []
+  mainObjectFileID: 9100000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
@@ -12,6 +11,5 @@ AssetOrigin:
   productId: 301357
   packageName: Free Inventory System for 2D Games
   packageVersion: 1.0.0
-  assetPath: Assets/Inventory System - Kinnly/TextMesh Pro/Shaders/TMP_SDF-Mobile
-    SSD.shader
+  assetPath: Assets/Inventory System - Kinnly/Animation/TrashCan/TrashCan.controller
   uploadId: 705297
