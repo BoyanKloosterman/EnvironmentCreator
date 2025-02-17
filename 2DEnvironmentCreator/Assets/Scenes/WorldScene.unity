@@ -247,6 +247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backButton: {fileID: 4478120654190568657}
+  gridSize: 1
   prefab1: {fileID: 1698326095}
   prefab2: {fileID: 1448468824}
   prefab3: {fileID: 523609121}
@@ -516,6 +517,22 @@ PrefabInstance:
     - target: {fileID: 9137150297180443550, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
       propertyPath: prefabId
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9190499427459902442, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -1498.8792
+      objectReference: {fileID: 0}
+    - target: {fileID: 9190499427459902442, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: -13.5284
+      objectReference: {fileID: 0}
+    - target: {fileID: 9190499427459902442, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -756.46826
+      objectReference: {fileID: 0}
+    - target: {fileID: 9190499427459902442, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 6.764221
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
