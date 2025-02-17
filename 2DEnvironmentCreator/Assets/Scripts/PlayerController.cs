@@ -21,10 +21,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+
         if (!isMoving)
         {
             input.x = Input.GetAxisRaw("Horizontal");
             input.y = Input.GetAxisRaw("Vertical");
+
 
             if (input.x != 0) input.y = 0;
 
