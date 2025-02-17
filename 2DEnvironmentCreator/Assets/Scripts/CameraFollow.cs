@@ -2,25 +2,23 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target; // Assign the player in the inspector
-    public float smoothing = 5f;
+    public float moveSpeed = 5.0f; // Speed for manual camera movement
+    private float horizontalInput, verticalInput;
 
-    private Vector3 offset;
-
-    private void Start()
+    private void Update()
     {
-        if (target != null)
-        {
-            offset = transform.position - target.position;
-        }
+        // Handle manual camera movement (with Arrow keys, WASD, or Joystick)
+        HandleManualMovement();
     }
 
-    private void LateUpdate()
+    private void HandleManualMovement()
     {
-        if (target != null)
-        {
-            Vector3 targetPosition = target.position + offset;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, smoothing * Time.deltaTime);
-        }
+        // Get input for movement (Horizontal and Vertical)
+        horizontalInput = Input.GetAxis("Horizontal"); // A/D or Left/Right
+        verticalInput = Input.GetAxis("Vertical"); // W/S or Up/Down
+
+        // Move the camera based on input
+        Vector3 moveDirection = new Vector3(horizontalInput, verticalInput, 0) * moveSpeed * Time.deltaTime;
+        transform.position += moveDirection;
     }
 }
