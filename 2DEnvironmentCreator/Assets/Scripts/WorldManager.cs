@@ -12,6 +12,8 @@ public class WorldManager : MonoBehaviour
     private GameObject currentObject;
     private int currentPrefabId;
 
+    public float gridSize = 1f; // Define grid size for snapping
+
     public GameObject prefab1, prefab2, prefab3, prefab4, prefab5, prefab6;
 
     void Start()
@@ -46,12 +48,15 @@ public class WorldManager : MonoBehaviour
 
         while (currentObject != null)
         {
-            if (lastPosition != currentObject.transform.position ||
+            Vector3 snappedPosition = SnapToGrid(currentObject.transform.position);
+            if (lastPosition != snappedPosition ||
                 lastScale != currentObject.transform.localScale ||
                 lastRotation != currentObject.transform.rotation)
             {
+                currentObject.transform.position = snappedPosition;
                 SaveObjectToEnvironment(currentObject, currentPrefabId);
-                lastPosition = currentObject.transform.position;
+
+                lastPosition = snappedPosition;
                 lastScale = currentObject.transform.localScale;
                 lastRotation = currentObject.transform.rotation;
             }
@@ -159,7 +164,8 @@ public class WorldManager : MonoBehaviour
         GameObject prefab = GetPrefabById(objectData.prefabId);
         if (prefab != null)
         {
-            GameObject obj = Instantiate(prefab, new Vector3(objectData.positionX, objectData.positionY, 0), Quaternion.Euler(0, 0, objectData.rotationZ));
+            Vector3 snappedPosition = SnapToGrid(new Vector3(objectData.positionX, objectData.positionY, 0));
+            GameObject obj = Instantiate(prefab, snappedPosition, Quaternion.Euler(0, 0, objectData.rotationZ));
             obj.transform.localScale = new Vector3(objectData.scaleX, objectData.scaleY, 1);
             obj.GetComponent<Renderer>().sortingOrder = objectData.sortingLayer;
         }
@@ -181,6 +187,14 @@ public class WorldManager : MonoBehaviour
             case 6: return prefab6;
             default: return null;
         }
+    }
+
+    // Function to snap object positions to the grid
+    private Vector3 SnapToGrid(Vector3 position)
+    {
+        float snappedX = Mathf.Round(position.x / gridSize) * gridSize;
+        float snappedY = Mathf.Round(position.y / gridSize) * gridSize;
+        return new Vector3(snappedX, snappedY, 0);
     }
 
     public static class JsonHelper
