@@ -15,18 +15,18 @@ public class AuthManager : MonoBehaviour
 
     private void Start()
     {
-        AutoLoginAsAdmin();
+        //AutoLoginAsAdmin();
     }
 
-    private void AutoLoginAsAdmin()
-    {
-        string username = "MiepMap123!";
-        string password = "MiepMap123!";
+    //private void AutoLoginAsAdmin()
+    //{
+    //    string username = "MiepMap123!";
+    //    string password = "MiepMap123!";
 
 
-        feedbackText.text = "Logged in as Admin!";
-        StartCoroutine(LoginUser(username, password));
-    }
+    //    feedbackText.text = "Logged in as Admin!";
+    //    StartCoroutine(LoginUser(username, password));
+    //}
     public void Register()
     {
         string username = usernameField.text;
