@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
 using Newtonsoft.Json;
+using static System.Net.WebRequestMethods;
 
 public class WorldCreate : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class WorldCreate : MonoBehaviour
     public Button createButton;
     public TextMeshProUGUI feedbackText;
 
-    private string apiUrl = "http://localhost:5067/api/environment";
+    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/environment";
 
     void Start()
     {

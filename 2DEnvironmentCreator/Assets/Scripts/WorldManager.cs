@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 public class WorldManager : MonoBehaviour
 {
     public Button backButton;
-    private string apiUrl = "http://localhost:5067/api/objects";
+    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/objects";
     private int environmentId;
     private GameObject currentObject;
     private int currentPrefabId;
