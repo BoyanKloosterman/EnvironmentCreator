@@ -55,7 +55,7 @@ jobs:
         dotnet-version: ${{env.DOTNET_CORE_VERSION}}
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.sln
       
     - name: Build
       run: dotnet build --no-restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.sln
