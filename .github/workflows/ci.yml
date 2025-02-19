@@ -55,13 +55,13 @@ jobs:
         dotnet-version: ${{env.DOTNET_CORE_VERSION}}
 
     - name: Restore dependencies
-      run: dotnet restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.sln
+      run: dotnet restore ${{ secrets.WEBAPI_PROJECT_NAME }}
       
     - name: Build
-      run: dotnet build --no-restore ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.sln
+      run: dotnet build --no-restore ${{ secrets.WEBAPI_PROJECT_NAME }}
     
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./EnvironmentCreatorAPI/EnvironmentCreatorAPI.sln
+      run: dotnet test --no-build --verbosity normal ${{ secrets.WEBAPI_PROJECT_NAME }}
     
     - name: Publish
       run: dotnet publish ./${{ secrets.WEBAPI_PROJECT_NAME }} --output ${{env.PUBLISH_DIRECTORY}} --configuration Release 
