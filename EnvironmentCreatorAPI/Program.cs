@@ -58,10 +58,11 @@ app.MapGet("/", () => "API is up");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+Console.WriteLine($"JWT Audience: {builder.Configuration["JwtSettings:ValidAudience"]}");
+Console.WriteLine($"JWT Issuer: {builder.Configuration["JwtSettings:ValidIssuer"]}");
+app.UseDeveloperExceptionPage();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseDeveloperExceptionPage();
 app.MapControllers();
 
 app.Run();
