@@ -71,7 +71,7 @@ public class AuthManager : MonoBehaviour
 
     IEnumerator RegisterUser(string username, string password)
     {
-        UserData userData = new UserData(username, password);
+        User userData = new User(username, password);
         var jsonData = JsonUtility.ToJson(userData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/register", "POST"))
@@ -93,7 +93,7 @@ public class AuthManager : MonoBehaviour
 
     IEnumerator LoginUser(string username, string password)
     {
-        UserData userData = new UserData(username, password);
+        User userData = new User(username, password);
         var jsonData = JsonUtility.ToJson(userData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/login", "POST"))
@@ -122,25 +122,5 @@ public class AuthManager : MonoBehaviour
                 Debug.LogError("Login Error: " + www.downloadHandler.text);
             }
         }
-    }
-
-    [System.Serializable]
-    public class UserData
-    {
-        public string Username;
-        public string Password;
-
-        public UserData(string username, string password)
-        {
-            Username = username;
-            Password = password;
-        }
-    }
-
-    [System.Serializable]
-    public class LoginResponse
-    {
-        public string token;
-        public int userId;
     }
 }
