@@ -99,7 +99,7 @@ namespace EnvironmentCreatorAPI.Controllers
             var claims = new[] {
         new Claim(ClaimTypes.Name, user.Username),
         new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-        new Claim(JwtRegisteredClaimNames.Aud, "http://localhost:5067"),
+        new Claim(JwtRegisteredClaimNames.Aud, "https://avansict2226638.azurewebsites.net"),
         new Claim(JwtRegisteredClaimNames.Iss, "EnvironmentCreatorAPI")
     };
 
