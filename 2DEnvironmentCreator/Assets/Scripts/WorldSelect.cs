@@ -1,28 +1,37 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
-using System.Collections;
 using TMPro;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections;
+using System.Threading.Tasks;
 
 public class WorldSelect : MonoBehaviour
 {
     public GameObject worldPrefab;
     public Transform worldsPanel;
     public Button createWorldButton;
-    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/environment";
+    public Environment2DApiClient environmentApiClient; // Reference to the Environment2DApiClient
 
     void Start()
     {
         string token = PlayerPrefs.GetString("AuthToken", "");
         Debug.Log("Stored Auth Token: " + token); // Check if token is stored correctly
+
         createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("WorldCreateScene"));
-        StartCoroutine(GetWorlds());
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Debug.LogError("Token is missing! Redirecting to login.");
+            SceneManager.LoadScene("LoginScene");
+        }
+        else
+        {
+            LoadWorlds();
+        }
     }
 
-    IEnumerator GetWorlds()
+    private async void LoadWorlds()
     {
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
         Debug.Log($"Sending Auth Token: Bearer {token}");
@@ -31,49 +40,29 @@ public class WorldSelect : MonoBehaviour
         {
             Debug.LogError("Token is missing! Redirecting to login.");
             SceneManager.LoadScene("LoginScene");
-            yield break;
+            return;
         }
 
-        UnityWebRequest request = UnityWebRequest.Get(apiUrl);
-        request.SetRequestHeader("Authorization", "Bearer " + token);
-        request.SetRequestHeader("Content-Type", "application/json"); // Ensure this is set
+        var response = await environmentApiClient.ReadEnvironment2Ds();
 
-        yield return request.SendWebRequest();
-
-        Debug.Log($"Response Code: {request.responseCode}"); // Log response code
-
-        if (request.result == UnityWebRequest.Result.Success)
+        if (response is WebRequestData<List<Environment2D>> data)
         {
-            try
-            {
-                List<Environment2D> worlds = JsonConvert.DeserializeObject<List<Environment2D>>(request.downloadHandler.text);
-                if (worlds == null || worlds.Count == 0) yield break;
+            List<Environment2D> worlds = data.Data;
+            if (worlds == null || worlds.Count == 0) return;
 
-                PlayerPrefs.SetInt("UserId", worlds[0].userId);
-                PlayerPrefs.Save();
+            PlayerPrefs.SetInt("UserId", worlds[0].userId);
+            PlayerPrefs.Save();
 
-                for (int i = 0; i < Mathf.Min(worlds.Count, 5); i++)
-                {
-                    AddWorldToUI(worlds[i]);
-                }
-            }
-            catch (System.Exception e)
+            for (int i = 0; i < Mathf.Min(worlds.Count, 5); i++)
             {
-                Debug.LogError("Error parsing world data: " + e.Message);
+                AddWorldToUI(worlds[i]);
             }
         }
         else
         {
-            Debug.LogError("Error fetching worlds: " + request.error + " | Response: " + request.downloadHandler.text);
-            if (request.responseCode == 401)
-            {
-                Debug.LogError("Unauthorized! Clearing token and redirecting to login.");
-                PlayerPrefs.DeleteKey("AuthToken");
-                SceneManager.LoadScene("LoginScene"); // Redirect user to login
-            }
+            Debug.LogError("Failed to load worlds.");
         }
     }
-
 
     void AddWorldToUI(Environment2D world)
     {
@@ -108,21 +97,28 @@ public class WorldSelect : MonoBehaviour
 
     IEnumerator DeleteWorld(int environmentId, GameObject worldObject)
     {
-        string token = PlayerPrefs.GetString("AuthToken");
-        UnityWebRequest request = UnityWebRequest.Delete(apiUrl + "/" + environmentId);
-        request.SetRequestHeader("Authorization", "Bearer " + token);
+        string token = PlayerPrefs.GetString("AuthToken", "");
 
-        yield return request.SendWebRequest();
+        // Start the async task within the coroutine
+        var task = DeleteWorldAsync(environmentId, token, worldObject);
+        while (!task.IsCompleted)
+        {
+            yield return null; // Wait until the task is completed
+        }
+    }
 
-        if (request.result == UnityWebRequest.Result.Success)
+    private async Task DeleteWorldAsync(int environmentId, string token, GameObject worldObject)
+    {
+        var response = await environmentApiClient.DeleteEnvironment(environmentId.ToString());
+
+        if (response is WebRequestData<string> data && data.Data == "Succes")
         {
             Destroy(worldObject);
         }
         else
         {
-            Debug.LogError("Error deleting world: " + request.error);
+            Debug.LogError("Error deleting world: " + response.ToString());
         }
     }
-
 
 }
