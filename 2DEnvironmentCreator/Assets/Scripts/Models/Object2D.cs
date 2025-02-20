@@ -3,6 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class Object2D
 {
+    public int id;
     public int environmentId;
     public int prefabId;
     public float positionX;

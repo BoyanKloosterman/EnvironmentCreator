@@ -1,17 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Collections;
-using UnityEngine.Networking;
 using TMPro;
+using System.Threading.Tasks; // Add this to work with async/await
 
 public class AuthManager : MonoBehaviour
 {
     public InputField usernameField;
     public InputField passwordField;
     public TextMeshProUGUI feedbackText;
-
-    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/user";
+    public UserApiClient userApiClient;
 
     public void Register()
     {
@@ -24,7 +22,8 @@ public class AuthManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(RegisterUser(username, password));
+        // Use async method for registration
+        RegisterUser(username, password);
     }
 
     public void Login()
@@ -38,7 +37,8 @@ public class AuthManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(LoginUser(username, password));
+        // Use async method for login
+        LoginUser(username, password);
     }
 
     private bool IsPasswordValid(string password, out string errorMessage)
@@ -69,58 +69,40 @@ public class AuthManager : MonoBehaviour
         return string.IsNullOrEmpty(errorMessage);
     }
 
-    IEnumerator RegisterUser(string username, string password)
+    private async void RegisterUser(string username, string password)
     {
         User userData = new User(username, password);
-        var jsonData = JsonUtility.ToJson(userData);
+        var response = await userApiClient.Register(userData);
 
-        using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/register", "POST"))
+        // Process registration response
+        if (response is WebRequestData<string> data && data.Data == "Succes")
         {
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
-
-            yield return www.SendWebRequest();
-
-            feedbackText.text = www.result == UnityWebRequest.Result.Success ?
-                "Registratie succesvol!" : $"Registratie mislukt: {www.downloadHandler.text}";
-
-            if (www.result != UnityWebRequest.Result.Success)
-                Debug.LogError("Registration Error: " + www.downloadHandler.text);
+            feedbackText.text = "Registratie succesvol!";
+        }
+        else
+        {
+            feedbackText.text = "Registratie mislukt: " + response.ToString();
+            Debug.LogError("Registration Error: " + response.ToString());
         }
     }
 
-    IEnumerator LoginUser(string username, string password)
+    private async void LoginUser(string username, string password)
     {
         User userData = new User(username, password);
-        var jsonData = JsonUtility.ToJson(userData);
+        var response = await userApiClient.Login(userData);
 
-        using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/login", "POST"))
+        if (response is WebRequestData<string> data && data.Data == "Succes")
         {
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
+            string token = PlayerPrefs.GetString("AuthToken", string.Empty);
+            string userId = PlayerPrefs.GetInt("UserId", 0).ToString();
 
-            yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                string response = www.downloadHandler.text;
-                LoginResponse loginResponse = JsonUtility.FromJson<LoginResponse>(response);
-
-                PlayerPrefs.SetString("AuthToken", loginResponse.token);
-                PlayerPrefs.SetInt("UserId", loginResponse.userId);
-                PlayerPrefs.Save();
-
-                SceneManager.LoadScene("WorldSelectScene");
-            }
-            else
-            {
-                feedbackText.text = "Inloggen mislukt: " + www.downloadHandler.text;
-                Debug.LogError("Login Error: " + www.downloadHandler.text);
-            }
+            // Proceed with the scene change or other actions
+            SceneManager.LoadScene("WorldSelectScene");
+        }
+        else
+        {
+            feedbackText.text = "Inloggen mislukt: " + response.ToString();
+            Debug.LogError("Login Error: " + response.ToString());
         }
     }
 }
