@@ -13,20 +13,6 @@ public class AuthManager : MonoBehaviour
 
     private string apiUrl = "https://avansict2226638.azurewebsites.net/api/user";
 
-    private void Start()
-    {
-        //AutoLoginAsAdmin();
-    }
-
-    //private void AutoLoginAsAdmin()
-    //{
-    //    string username = "MiepMap123!";
-    //    string password = "MiepMap123!";
-
-
-    //    feedbackText.text = "Logged in as Admin!";
-    //    StartCoroutine(LoginUser(username, password));
-    //}
     public void Register()
     {
         string username = usernameField.text;
@@ -85,7 +71,7 @@ public class AuthManager : MonoBehaviour
 
     IEnumerator RegisterUser(string username, string password)
     {
-        UserData userData = new UserData(username, password);
+        User userData = new User(username, password);
         var jsonData = JsonUtility.ToJson(userData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/register", "POST"))
@@ -107,7 +93,7 @@ public class AuthManager : MonoBehaviour
 
     IEnumerator LoginUser(string username, string password)
     {
-        UserData userData = new UserData(username, password);
+        User userData = new User(username, password);
         var jsonData = JsonUtility.ToJson(userData);
 
         using (UnityWebRequest www = new UnityWebRequest($"{apiUrl}/login", "POST"))
@@ -136,25 +122,5 @@ public class AuthManager : MonoBehaviour
                 Debug.LogError("Login Error: " + www.downloadHandler.text);
             }
         }
-    }
-
-    [System.Serializable]
-    public class UserData
-    {
-        public string Username;
-        public string Password;
-
-        public UserData(string username, string password)
-        {
-            Username = username;
-            Password = password;
-        }
-    }
-
-    [System.Serializable]
-    public class LoginResponse
-    {
-        public string token;
-        public int userId;
     }
 }

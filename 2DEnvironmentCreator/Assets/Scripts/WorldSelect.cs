@@ -16,31 +16,38 @@ public class WorldSelect : MonoBehaviour
 
     void Start()
     {
+        string token = PlayerPrefs.GetString("AuthToken", "");
+        Debug.Log("Stored Auth Token: " + token); // Check if token is stored correctly
         createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("WorldCreateScene"));
         StartCoroutine(GetWorlds());
     }
 
     IEnumerator GetWorlds()
     {
-        string token = PlayerPrefs.GetString("AuthToken");
+        string token = PlayerPrefs.GetString("AuthToken", "").Trim();
+        Debug.Log($"Sending Auth Token: Bearer {token}");
 
         if (string.IsNullOrEmpty(token))
         {
+            Debug.LogError("Token is missing! Redirecting to login.");
+            SceneManager.LoadScene("LoginScene");
             yield break;
         }
 
         UnityWebRequest request = UnityWebRequest.Get(apiUrl);
         request.SetRequestHeader("Authorization", "Bearer " + token);
+        request.SetRequestHeader("Content-Type", "application/json"); // Ensure this is set
+
         yield return request.SendWebRequest();
+
+        Debug.Log($"Response Code: {request.responseCode}"); // Log response code
 
         if (request.result == UnityWebRequest.Result.Success)
         {
             try
             {
                 List<Environment2D> worlds = JsonConvert.DeserializeObject<List<Environment2D>>(request.downloadHandler.text);
-
-                if (worlds == null || worlds.Count == 0)
-                    yield break;
+                if (worlds == null || worlds.Count == 0) yield break;
 
                 PlayerPrefs.SetInt("UserId", worlds[0].userId);
                 PlayerPrefs.Save();
@@ -57,9 +64,16 @@ public class WorldSelect : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Error fetching worlds: " + request.error);
+            Debug.LogError("Error fetching worlds: " + request.error + " | Response: " + request.downloadHandler.text);
+            if (request.responseCode == 401)
+            {
+                Debug.LogError("Unauthorized! Clearing token and redirecting to login.");
+                PlayerPrefs.DeleteKey("AuthToken");
+                SceneManager.LoadScene("LoginScene"); // Redirect user to login
+            }
         }
     }
+
 
     void AddWorldToUI(Environment2D world)
     {
@@ -110,11 +124,5 @@ public class WorldSelect : MonoBehaviour
         }
     }
 
-    [System.Serializable]
-    public class Environment2D
-    {
-        public int environmentId;
-        public string name;
-        public int userId;
-    }
+
 }
