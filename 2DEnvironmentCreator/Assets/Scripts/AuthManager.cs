@@ -13,20 +13,6 @@ public class AuthManager : MonoBehaviour
 
     private string apiUrl = "https://avansict2226638.azurewebsites.net/api/user";
 
-    private void Start()
-    {
-        //AutoLoginAsAdmin();
-    }
-
-    //private void AutoLoginAsAdmin()
-    //{
-    //    string username = "MiepMap123!";
-    //    string password = "MiepMap123!";
-
-
-    //    feedbackText.text = "Logged in as Admin!";
-    //    StartCoroutine(LoginUser(username, password));
-    //}
     public void Register()
     {
         string username = usernameField.text;
