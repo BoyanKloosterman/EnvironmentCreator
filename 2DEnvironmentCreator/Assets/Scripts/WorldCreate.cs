@@ -47,11 +47,25 @@ public class WorldCreate : MonoBehaviour
             return;
         }
 
+        if (width < 20 || width > 200)
+        {
+            feedbackText.text = "Width must be between 20 and 200.";
+            return;
+        }
+
+        if (height < 10 || height > 100)
+        {
+            feedbackText.text = "Height must be between 10 and 100.";
+            return;
+        }
+
         int userId = PlayerPrefs.GetInt("UserId");
         Environment2D newEnvironment = new Environment2D
         {
             name = name,
-            userId = userId
+            userId = userId,
+            height = height, // Set height
+            width = width    // Set width
         };
 
         StartCoroutine(PostWorld(newEnvironment));
@@ -91,3 +105,4 @@ public class WorldCreate : MonoBehaviour
         }
     }
 }
+

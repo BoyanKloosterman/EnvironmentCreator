@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public class Environment2DApiClient : MonoBehaviour
 {
@@ -18,13 +19,12 @@ public class Environment2DApiClient : MonoBehaviour
     public async Awaitable<IWebRequestReponse> CreateEnvironment(Environment2D environment)
     {
         string route = "/api/environment";
-        string data = JsonUtility.ToJson(environment);
+        string data = JsonConvert.SerializeObject(environment);
         Debug.Log("Creating environment with data: " + data);
 
         IWebRequestReponse webRequestResponse = await webClient.SendPostRequest(route, data);
         return ParseEnvironment2DResponse(webRequestResponse);
     }
-
 
     public async Awaitable<IWebRequestReponse> DeleteEnvironment(string environmentId)
     {
@@ -38,7 +38,7 @@ public class Environment2DApiClient : MonoBehaviour
         {
             case WebRequestData<string> data:
                 Debug.Log("Response data raw: " + data.Data);
-                Environment2D environment = JsonUtility.FromJson<Environment2D>(data.Data);
+                Environment2D environment = JsonConvert.DeserializeObject<Environment2D>(data.Data);
                 WebRequestData<Environment2D> parsedWebRequestData = new WebRequestData<Environment2D>(environment);
                 return parsedWebRequestData;
             default:
@@ -52,13 +52,12 @@ public class Environment2DApiClient : MonoBehaviour
         {
             case WebRequestData<string> data:
                 Debug.Log("Response data raw: " + data.Data);
-                List<Environment2D> environment2Ds = JsonHelper.ParseJsonArray<Environment2D>(data.Data);
+                List<Environment2D> environment2Ds = JsonConvert.DeserializeObject<List<Environment2D>>(data.Data);
                 WebRequestData<List<Environment2D>> parsedWebRequestData = new WebRequestData<List<Environment2D>>(environment2Ds);
                 return parsedWebRequestData;
             default:
                 return webRequestResponse;
         }
     }
-
 }
 
