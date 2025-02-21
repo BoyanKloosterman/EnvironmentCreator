@@ -102,13 +102,24 @@ public class WorldSelect : MonoBehaviour
     {
         var response = await environmentApiClient.DeleteEnvironment(environmentId.ToString());
 
-        if (response is WebRequestData<string> data && data.Data == "Succes")
+        if (response is WebRequestData<string> data)
         {
-            Destroy(worldObject);
+            Debug.Log("Delete response data: " + data.Data);
+            if (string.IsNullOrEmpty(data.Data) || data.Data == "Success")
+            {
+                Destroy(worldObject);
+                Debug.Log("World deleted successfully.");
+            }
+            else
+            {
+                Debug.LogError("Error deleting world: " + data.Data);
+            }
         }
         else
         {
-            Debug.LogError("Error deleting world: " + response.ToString());
+            Debug.LogError("Unexpected response type: " + response.GetType());
         }
     }
+
+
 }
