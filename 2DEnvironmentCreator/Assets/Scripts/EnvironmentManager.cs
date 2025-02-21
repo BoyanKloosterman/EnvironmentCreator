@@ -2,12 +2,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.Networking;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class EnvironmentManager : MonoBehaviour
 {
     public Button backButton;
-    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/objects";
+    public Object2DApiClient object2DApiClient; // Reference to the Object2DApiClient
     private int environmentId;
     private GameObject currentObject;
     private int currentPrefabId;
@@ -20,6 +21,18 @@ public class EnvironmentManager : MonoBehaviour
     {
         backButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentSelectScene"));
         environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0);
+
+        string token = PlayerPrefs.GetString("AuthToken", "").Trim();
+        if (!string.IsNullOrEmpty(token))
+        {
+            object2DApiClient.webClient.SetToken(token);
+        }
+        else
+        {
+            Debug.LogError("Token is missing! Redirecting to login.");
+            SceneManager.LoadScene("LoginScene");
+            return;
+        }
 
         if (environmentId != 0)
         {
@@ -89,74 +102,73 @@ public class EnvironmentManager : MonoBehaviour
 
     IEnumerator PostObjectToEnvironment(Object2D object2D)
     {
-        string jsonData = JsonUtility.ToJson(object2D);
-        string authToken = PlayerPrefs.GetString("AuthToken", "");
-
-        if (string.IsNullOrEmpty(authToken)) yield break;
-
-        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST")
+        var task = CreateObjectAsync(object2D);
+        while (!task.IsCompleted)
         {
-            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData)),
-            downloadHandler = new DownloadHandlerBuffer()
-        };
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+            yield return null; // Wait until the task is completed
+        }
 
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        if (task.IsCompletedSuccessfully)
         {
             Debug.Log("Object saved successfully.");
         }
         else
         {
-            Debug.LogError("Error saving object: " + request.error);
+            Debug.LogError("Error saving object: " + task.Exception);
+        }
+    }
+
+    private async Task CreateObjectAsync(Object2D object2D)
+    {
+        var response = await object2DApiClient.CreateObject2D(object2D);
+
+        if (response is WebRequestData<Object2D> data)
+        {
+            Debug.Log("Object created successfully: " + data.Data.id);
+        }
+        else
+        {
+            Debug.LogError("Error creating object: " + response.ToString());
         }
     }
 
     public void LoadObjectsFromEnvironment()
     {
-        string url = $"{apiUrl}/environment/{environmentId}";
-        StartCoroutine(GetObjectsFromServer(url));
+        StartCoroutine(GetObjectsFromEnvironment());
     }
 
-    IEnumerator GetObjectsFromServer(string url)
+    IEnumerator GetObjectsFromEnvironment()
     {
-        string authToken = PlayerPrefs.GetString("AuthToken", "");
-        if (string.IsNullOrEmpty(authToken)) yield break;
-
-        UnityWebRequest request = UnityWebRequest.Get(url);
-        request.SetRequestHeader("Authorization", "Bearer " + authToken);
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        var task = ReadObjectsAsync(environmentId.ToString());
+        while (!task.IsCompleted)
         {
-            try
-            {
-                Object2D[] objects = JsonHelper.FromJson<Object2D>(request.downloadHandler.text);
+            yield return null; // Wait until the task is completed
+        }
 
-                if (objects != null)
+        if (task.IsCompletedSuccessfully)
+        {
+            var response = task.Result;
+            if (response is WebRequestData<List<Object2D>> data)
+            {
+                foreach (var objectData in data.Data)
                 {
-                    foreach (var objectData in objects)
-                    {
-                        RestoreObject(objectData);
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Failed to parse objects from the server.");
+                    RestoreObject(objectData);
                 }
             }
-            catch (System.Exception ex)
+            else
             {
-                Debug.LogError("Error parsing JSON response: " + ex.Message);
+                Debug.LogError("Failed to load objects.");
             }
         }
         else
         {
-            Debug.LogError("Error loading objects: " + request.error);
+            Debug.LogError("Error loading objects: " + task.Exception);
         }
+    }
+
+    private async Task<IWebRequestReponse> ReadObjectsAsync(string environmentId)
+    {
+        return await object2DApiClient.ReadObject2Ds(environmentId);
     }
 
     public void RestoreObject(Object2D objectData)
@@ -196,6 +208,5 @@ public class EnvironmentManager : MonoBehaviour
         float snappedY = Mathf.Round(position.y / gridSize) * gridSize;
         return new Vector3(snappedX, snappedY, 0);
     }
-
-
 }
+
