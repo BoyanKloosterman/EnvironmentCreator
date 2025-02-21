@@ -18,7 +18,7 @@ public class EnvironmentCreate : MonoBehaviour
     void Start()
     {
         createButton.onClick.AddListener(CreateWorld);
-        returnButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
+        returnButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentSelectScene"));
 
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
         if (!string.IsNullOrEmpty(token))
@@ -82,7 +82,7 @@ public class EnvironmentCreate : MonoBehaviour
         if (task.IsCompletedSuccessfully)
         {
             feedbackText.text = "World created successfully!";
-            SceneManager.LoadScene("WorldSelectScene");
+            SceneManager.LoadScene("EnvironmentSelectScene");
         }
         else
         {

@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 161633101}
   - component: {fileID: 161633100}
   m_Layer: 0
-  m_Name: WorldCreateApiClient
+  m_Name: EnvironmentCreateApiClient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1547,7 +1547,7 @@ GameObject:
   - component: {fileID: 1170951969}
   - component: {fileID: 1170951968}
   m_Layer: 0
-  m_Name: WorldCreateWebClient
+  m_Name: EnvironmentCreateWebClient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3012,7 +3012,7 @@ GameObject:
   - component: {fileID: 1927961774}
   - component: {fileID: 1927961775}
   m_Layer: 0
-  m_Name: WorldCreateManager
+  m_Name: EnvironmentCreateManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -97,7 +97,7 @@ public class AuthManager : MonoBehaviour
             string userId = PlayerPrefs.GetInt("UserId", 0).ToString();
 
             // Proceed with the scene change or other actions
-            SceneManager.LoadScene("WorldSelectScene");
+            SceneManager.LoadScene("EnvironmentSelectScene");
         }
         else
         {

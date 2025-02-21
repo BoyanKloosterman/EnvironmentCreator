@@ -18,7 +18,7 @@ public class EnvironmentSelect : MonoBehaviour
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
         Debug.Log("Stored Auth Token: " + token); // Check if token is stored correctly
 
-        createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("WorldCreateScene"));
+        createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentCreateScene"));
 
         if (string.IsNullOrEmpty(token))
         {
@@ -83,7 +83,7 @@ public class EnvironmentSelect : MonoBehaviour
     {
         PlayerPrefs.SetInt("SelectedEnvironmentId", environmentId);
         PlayerPrefs.Save();
-        SceneManager.LoadScene("WorldScene");
+        SceneManager.LoadScene("EnvironmentScene");
     }
 
     IEnumerator DeleteWorld(int environmentId, GameObject worldObject)

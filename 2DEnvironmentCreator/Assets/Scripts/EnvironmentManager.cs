@@ -18,7 +18,7 @@ public class EnvironmentManager : MonoBehaviour
 
     void Start()
     {
-        backButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
+        backButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentSelectScene"));
         environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0);
 
         if (environmentId != 0)
