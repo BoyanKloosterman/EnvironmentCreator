@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
-using Newtonsoft.Json;
-using static System.Net.WebRequestMethods;
+using System.Threading.Tasks;
 
 public class WorldCreate : MonoBehaviour
 {
@@ -13,13 +11,25 @@ public class WorldCreate : MonoBehaviour
     public TMP_InputField heightInput;
     public TMP_InputField widthInput;
     public Button createButton;
+    public Button returnButton;
     public TextMeshProUGUI feedbackText;
-
-    private string apiUrl = "https://avansict2226638.azurewebsites.net/api/environment";
+    public Environment2DApiClient environmentApiClient; // Reference to the Environment2DApiClient
 
     void Start()
     {
         createButton.onClick.AddListener(CreateWorld);
+        returnButton.onClick.AddListener(() => SceneManager.LoadScene("WorldSelectScene"));
+
+        string token = PlayerPrefs.GetString("AuthToken", "").Trim();
+        if (!string.IsNullOrEmpty(token))
+        {
+            environmentApiClient.webClient.SetToken(token);
+        }
+        else
+        {
+            Debug.LogError("Token is missing! Redirecting to login.");
+            SceneManager.LoadScene("LoginScene");
+        }
     }
 
     void CreateWorld()
@@ -27,50 +37,57 @@ public class WorldCreate : MonoBehaviour
         string name = nameInput.text.Trim();
         if (!int.TryParse(heightInput.text, out int height) || !int.TryParse(widthInput.text, out int width))
         {
-            feedbackText.text = "Vul geldige getallen in voor lengte en breedte.";
+            feedbackText.text = "Please enter valid numbers for height and width.";
             return;
         }
 
         if (string.IsNullOrEmpty(name) || height <= 0 || width <= 0)
         {
-            feedbackText.text = "Vul alle velden correct in.";
+            feedbackText.text = "Please fill in all fields correctly.";
             return;
         }
 
         int userId = PlayerPrefs.GetInt("UserId");
-        StartCoroutine(PostWorld(name, height, width, userId));
+        Environment2D newEnvironment = new Environment2D
+        {
+            name = name,
+            userId = userId
+        };
+
+        StartCoroutine(PostWorld(newEnvironment));
     }
 
-    IEnumerator PostWorld(string name, int height, int width, int userId)
+    IEnumerator PostWorld(Environment2D environment)
     {
-        var worldData = new
+        var task = CreateWorldAsync(environment);
+        while (!task.IsCompleted)
         {
-            Name = name,
-            MaxHeight = height,
-            MaxWidth = width,
-            UserId = userId
-        };
+            yield return null; // Wait until the task is completed
+        }
 
-        string jsonData = JsonConvert.SerializeObject(worldData);
-        UnityWebRequest request = new UnityWebRequest(apiUrl, "POST")
+        if (task.IsCompletedSuccessfully)
         {
-            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonData)),
-            downloadHandler = new DownloadHandlerBuffer()
-        };
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken"));
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            feedbackText.text = "Wereld succesvol aangemaakt!";
+            feedbackText.text = "World created successfully!";
             SceneManager.LoadScene("WorldSelectScene");
         }
         else
         {
-            feedbackText.text = "Fout bij het aanmaken van de wereld.";
-            Debug.LogError("Server Response: " + request.downloadHandler.text);
+            feedbackText.text = "Error creating world.";
+            Debug.LogError("Error creating world: " + task.Exception);
+        }
+    }
+
+    private async Task CreateWorldAsync(Environment2D environment)
+    {
+        var response = await environmentApiClient.CreateEnvironment(environment);
+
+        if (response is WebRequestData<Environment2D> data)
+        {
+            Debug.Log("World created successfully: " + data.Data.name);
+        }
+        else
+        {
+            Debug.LogError("Error creating world: " + response.ToString());
         }
     }
 }
