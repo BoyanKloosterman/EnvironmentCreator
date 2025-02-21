@@ -9,13 +9,13 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/WorldSelectScene.unity
+    path: Assets/Scenes/EnvironmentSelectScene.unity
     guid: c1809f8faec994f41ab74e62098f9227
   - enabled: 1
-    path: Assets/Scenes/WorldCreateScene.unity
+    path: Assets/Scenes/EnvironmentCreateScene.unity
     guid: 8842e2426399c414ab3798c937fd8df0
   - enabled: 1
-    path: Assets/Scenes/WorldScene.unity
+    path: Assets/Scenes/EnvironmentScene.unity
     guid: 0b0c3e045738ca74bbfd2bf271294884
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}

@@ -5,12 +5,12 @@ public class DiceDragHandler : MonoBehaviour
     private bool isDragging = false;
     private Vector3 mouseOffset;
     private bool hasCloned = false;
-    private WorldManager worldManager;
+    private EnvironmentManager worldManager;
     public int prefabId = 1;
 
     private void Start()
     {
-        worldManager = FindFirstObjectByType<WorldManager>();
+        worldManager = FindFirstObjectByType<EnvironmentManager>();
     }
 
     private void OnMouseDown()
