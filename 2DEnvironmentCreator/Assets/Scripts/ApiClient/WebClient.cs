@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -12,6 +11,7 @@ public class WebClient : MonoBehaviour
     public void SetToken(string token)
     {
         this.token = token;
+        Debug.Log("Token set: " + token);
     }
 
     public async Awaitable<IWebRequestReponse> SendGetRequest(string route)
@@ -49,7 +49,17 @@ public class WebClient : MonoBehaviour
         webRequest.uploadHandler = new UploadHandlerRaw(dataInBytes);
         webRequest.downloadHandler = new DownloadHandlerBuffer();
         webRequest.SetRequestHeader("Content-Type", "application/json");
-        AddToken(webRequest);
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            webRequest.SetRequestHeader("Authorization", "Bearer " + token);
+            Debug.Log("Authorization header set: Bearer " + token);
+        }
+        else
+        {
+            Debug.LogWarning("Authorization header not set: Token is null or empty");
+        }
+
         return webRequest;
     }
 
@@ -57,26 +67,22 @@ public class WebClient : MonoBehaviour
     {
         await webRequest.SendWebRequest();
 
-        switch (webRequest.result)
+        if (webRequest.result == UnityWebRequest.Result.Success)
         {
-            case UnityWebRequest.Result.Success:
-                string responseData = webRequest.downloadHandler.text;
-                return new WebRequestData<string>(responseData);
-            default:
-                return new WebRequestError(webRequest.error);
+            string responseData = webRequest.downloadHandler.text;
+            return new WebRequestData<string>(responseData);
         }
-    }
- 
-    private void AddToken(UnityWebRequest webRequest)
-    {
-        webRequest.SetRequestHeader("Authorization", "Bearer " + token);
+        else
+        {
+            Debug.LogError($"Request failed: {webRequest.responseCode} - {webRequest.error}");
+            return new WebRequestError(webRequest.error);
+        }
     }
 
     private string RemoveIdFromJson(string json)
     {
         return json.Replace("\"id\":\"\",", "");
     }
-
 }
 
 [Serializable]

@@ -15,7 +15,7 @@ public class WorldSelect : MonoBehaviour
 
     void Start()
     {
-        string token = PlayerPrefs.GetString("AuthToken", "");
+        string token = PlayerPrefs.GetString("AuthToken", "").Trim();
         Debug.Log("Stored Auth Token: " + token); // Check if token is stored correctly
 
         createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("WorldCreateScene"));
@@ -27,22 +27,13 @@ public class WorldSelect : MonoBehaviour
         }
         else
         {
+            environmentApiClient.webClient.SetToken(token); // Set the token in the WebClient instance
             LoadWorlds();
         }
     }
 
     private async void LoadWorlds()
     {
-        string token = PlayerPrefs.GetString("AuthToken", "").Trim();
-        Debug.Log($"Sending Auth Token: Bearer {token}");
-
-        if (string.IsNullOrEmpty(token))
-        {
-            Debug.LogError("Token is missing! Redirecting to login.");
-            SceneManager.LoadScene("LoginScene");
-            return;
-        }
-
         var response = await environmentApiClient.ReadEnvironment2Ds();
 
         if (response is WebRequestData<List<Environment2D>> data)
@@ -120,5 +111,4 @@ public class WorldSelect : MonoBehaviour
             Debug.LogError("Error deleting world: " + response.ToString());
         }
     }
-
 }

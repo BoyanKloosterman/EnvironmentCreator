@@ -30,13 +30,24 @@ public class UserApiClient : MonoBehaviour
         {
             case WebRequestData<string> data:
                 Debug.Log("Response data raw: " + data.Data);
-                string token = JsonHelper.ExtractToken(data.Data);
+                // Assuming the token is in the response JSON under the "token" key
+                string token = ExtractTokenFromJson(data.Data);
                 webClient.SetToken(token);
+                PlayerPrefs.SetString("AuthToken", token);  // Save the token locally
                 return new WebRequestData<string>("Succes");
             default:
                 return webRequestResponse;
         }
     }
+
+    private string ExtractTokenFromJson(string json)
+    {
+        // Extract the token value from the JSON response
+        var tokenStart = json.IndexOf("\"token\":\"") + 9;
+        var tokenEnd = json.IndexOf("\"", tokenStart);
+        return json.Substring(tokenStart, tokenEnd - tokenStart);
+    }
+
 
 }
 
