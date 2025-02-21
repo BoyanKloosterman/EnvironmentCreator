@@ -5,7 +5,7 @@ using TMPro;
 using System.Collections;
 using System.Threading.Tasks;
 
-public class WorldCreate : MonoBehaviour
+public class EnvironmentCreate : MonoBehaviour
 {
     public TMP_InputField nameInput;
     public TMP_InputField heightInput;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
 
-public class WorldSelect : MonoBehaviour
+public class EnvironmentSelect : MonoBehaviour
 {
     public GameObject worldPrefab;
     public Transform worldsPanel;

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.Networking;
 
-public class WorldManager : MonoBehaviour
+public class EnvironmentManager : MonoBehaviour
 {
     public Button backButton;
     private string apiUrl = "https://avansict2226638.azurewebsites.net/api/objects";
