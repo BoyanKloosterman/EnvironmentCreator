@@ -340,6 +340,14 @@ PrefabInstance:
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3772438471121015391, guid: e71857ca1699dd74488145229e5d40fd, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 746
+      objectReference: {fileID: 0}
+    - target: {fileID: 3772438471121015391, guid: e71857ca1699dd74488145229e5d40fd, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7015696661867369128, guid: e71857ca1699dd74488145229e5d40fd, type: 3}
       propertyPath: m_Name
       value: DeleteButton
