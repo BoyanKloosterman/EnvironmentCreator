@@ -18,9 +18,15 @@ public class DiceDragHandler : MonoBehaviour
         isDragging = true;
         mouseOffset = transform.position - GetMouseWorldPosition();
 
+        if (worldManager != null)
+        {
+            worldManager.lastSelectedObject = gameObject;
+        }
+
+        // If this dice has never been instantiated (original prefab), clone it
         if (!hasCloned)
         {
-            CloneDice();
+            CloneDice(); // Instantiate new dice
             hasCloned = true;
         }
     }
@@ -29,9 +35,10 @@ public class DiceDragHandler : MonoBehaviour
     {
         isDragging = false;
 
-        if (worldManager != null)
+        if (worldManager != null && worldManager.lastSelectedObject == gameObject)
         {
-            worldManager.SaveObjectToEnvironment(gameObject, prefabId);
+            // Mark the dragged object as selected, but don't save yet
+            worldManager.SelectObject(gameObject, prefabId);
         }
     }
 
@@ -41,8 +48,25 @@ public class DiceDragHandler : MonoBehaviour
         {
             transform.position = GetMouseWorldPosition() + mouseOffset;
         }
-    }
 
+        if (worldManager.lastSelectedObject == gameObject)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RotateObject(15f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Minus))
+            {
+                ScaleObject(-10f);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Equals))
+            {
+                ScaleObject(10f);
+            }
+        }
+    }
     private Vector3 GetMouseWorldPosition()
     {
         Vector3 mouseScreenPosition = Input.mousePosition;
@@ -53,6 +77,31 @@ public class DiceDragHandler : MonoBehaviour
     private void CloneDice()
     {
         GameObject clone = Instantiate(gameObject, transform.position, transform.rotation);
-        clone.GetComponent<DiceDragHandler>().hasCloned = false;
+        DiceDragHandler cloneHandler = clone.GetComponent<DiceDragHandler>();
+        cloneHandler.hasCloned = false;
     }
+
+    private float lastRotationZ = 0f;
+    private const float rotationThreshold = 1f;
+
+    private void RotateObject(float angle)
+    {
+        float newRotationZ = transform.rotation.eulerAngles.z + angle;
+
+        newRotationZ = (newRotationZ + 360f) % 360f;
+
+        if (Mathf.Abs(newRotationZ - lastRotationZ) > rotationThreshold)
+        {
+            transform.Rotate(0, 0, angle);
+            lastRotationZ = newRotationZ;
+        }
+    }
+
+    // Method to scale the object
+    private void ScaleObject(float scaleChange)
+    {
+        Vector3 newScale = transform.localScale + new Vector3(scaleChange, scaleChange, 0);
+        transform.localScale = new Vector3(Mathf.Max(10f, newScale.x), Mathf.Max(10f, newScale.y), 1);
+    }
+
 }

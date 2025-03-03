@@ -1,25 +1,28 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
 public class EnvironmentManager : MonoBehaviour
 {
     public Button backButton;
-    public Object2DApiClient object2DApiClient; // Reference to the Object2DApiClient
+    public Button saveButton;
+    public Object2DApiClient object2DApiClient;
     private int environmentId;
-    private GameObject currentObject;
+    private List<GameObject> draggedObjects = new List<GameObject>();  // Store dragged objects temporarily
     private int currentPrefabId;
-
-    public float gridSize = 1f; // Define grid size for snapping
+    public GameObject lastSelectedObject;
+    public float gridSize = 1f;
 
     public GameObject prefab1, prefab2, prefab3, prefab4, prefab5, prefab6;
 
     void Start()
     {
         backButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentSelectScene"));
+        saveButton.onClick.AddListener(SaveObjects);  // Save all dragged objects when Save button is pressed
+
         environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0);
 
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
@@ -46,36 +49,21 @@ public class EnvironmentManager : MonoBehaviour
 
     public void SelectObject(GameObject obj, int prefabId)
     {
-        currentObject = obj;
         currentPrefabId = prefabId;
-        StartCoroutine(UpdateObjectState());
+        lastSelectedObject = obj;
+        // Store the dragged object temporarily
+        draggedObjects.Add(obj);
     }
 
-    IEnumerator UpdateObjectState()
+    public void SaveObjects()
     {
-        if (currentObject == null) yield break;
-
-        Vector3 lastPosition = currentObject.transform.position;
-        Vector3 lastScale = currentObject.transform.localScale;
-        Quaternion lastRotation = currentObject.transform.rotation;
-
-        while (currentObject != null)
+        foreach (GameObject obj in draggedObjects)
         {
-            Vector3 snappedPosition = SnapToGrid(currentObject.transform.position);
-            if (lastPosition != snappedPosition ||
-                lastScale != currentObject.transform.localScale ||
-                lastRotation != currentObject.transform.rotation)
-            {
-                currentObject.transform.position = snappedPosition;
-                SaveObjectToEnvironment(currentObject, currentPrefabId);
-
-                lastPosition = snappedPosition;
-                lastScale = currentObject.transform.localScale;
-                lastRotation = currentObject.transform.rotation;
-            }
-
-            yield return new WaitForSeconds(0.5f);
+            SaveObjectToEnvironment(obj, currentPrefabId);  // Save each dragged object
         }
+
+        // Clear the list after saving
+        draggedObjects.Clear();
     }
 
     public void SaveObjectToEnvironment(GameObject obj, int prefabId)
@@ -100,7 +88,7 @@ public class EnvironmentManager : MonoBehaviour
         StartCoroutine(PostObjectToEnvironment(object2D));
     }
 
-    IEnumerator PostObjectToEnvironment(Object2D object2D)
+    public IEnumerator PostObjectToEnvironment(Object2D object2D)
     {
         var task = CreateObjectAsync(object2D);
         while (!task.IsCompleted)
@@ -137,7 +125,7 @@ public class EnvironmentManager : MonoBehaviour
         StartCoroutine(GetObjectsFromEnvironment());
     }
 
-    IEnumerator GetObjectsFromEnvironment()
+    public IEnumerator GetObjectsFromEnvironment()
     {
         var task = ReadObjectsAsync(environmentId.ToString());
         while (!task.IsCompleted)
@@ -201,7 +189,6 @@ public class EnvironmentManager : MonoBehaviour
         }
     }
 
-    // Function to snap object positions to the grid
     private Vector3 SnapToGrid(Vector3 position)
     {
         float snappedX = Mathf.Round(position.x / gridSize) * gridSize;
@@ -209,4 +196,3 @@ public class EnvironmentManager : MonoBehaviour
         return new Vector3(snappedX, snappedY, 0);
     }
 }
-
