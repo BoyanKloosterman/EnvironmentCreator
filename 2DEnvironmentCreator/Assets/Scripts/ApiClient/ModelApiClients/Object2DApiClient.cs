@@ -32,6 +32,15 @@ public class Object2DApiClient : MonoBehaviour
         return await webClient.SendPutRequest(route, data);
     }
 
+    public async Awaitable<IWebRequestReponse> DeleteObject2D(Object2D object2D)
+    {
+        string route = "/api/Objects/" + object2D.id;
+
+        IWebRequestReponse webRequestResponse = await webClient.SendDeleteRequest(route);
+        return webRequestResponse;
+    }
+
+
     private IWebRequestReponse ParseObject2DResponse(IWebRequestReponse webRequestResponse)
     {
         switch (webRequestResponse)

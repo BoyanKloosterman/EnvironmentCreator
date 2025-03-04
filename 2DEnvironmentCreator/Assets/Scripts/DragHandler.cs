@@ -5,12 +5,12 @@ public class DiceDragHandler : MonoBehaviour
     private bool isDragging = false;
     private Vector3 mouseOffset;
     private bool hasCloned = false;
-    private EnvironmentManager worldManager;
+    private EnvironmentManager environmentManager;
     public int prefabId = 1;
 
     private void Start()
     {
-        worldManager = FindFirstObjectByType<EnvironmentManager>();
+        environmentManager = FindFirstObjectByType<EnvironmentManager>();
     }
 
     private void OnMouseDown()
@@ -18,9 +18,9 @@ public class DiceDragHandler : MonoBehaviour
         isDragging = true;
         mouseOffset = transform.position - GetMouseWorldPosition();
 
-        if (worldManager != null)
+        if (environmentManager != null)
         {
-            worldManager.lastSelectedObject = gameObject;
+            environmentManager.lastSelectedObject = gameObject;
         }
 
         // If this dice has never been instantiated (original prefab), clone it
@@ -35,10 +35,10 @@ public class DiceDragHandler : MonoBehaviour
     {
         isDragging = false;
 
-        if (worldManager != null && worldManager.lastSelectedObject == gameObject)
+        if (environmentManager != null && environmentManager.lastSelectedObject == gameObject)
         {
             // Mark the dragged object as selected, but don't save yet
-            worldManager.SelectObject(gameObject, prefabId);
+            environmentManager.SelectObject(gameObject, prefabId);
         }
     }
 
@@ -49,7 +49,7 @@ public class DiceDragHandler : MonoBehaviour
             transform.position = GetMouseWorldPosition() + mouseOffset;
         }
 
-        if (worldManager.lastSelectedObject == gameObject)
+        if (environmentManager.lastSelectedObject == gameObject)
         {
             if (Input.GetKeyDown(KeyCode.R))
             {

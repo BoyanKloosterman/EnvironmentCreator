@@ -877,6 +877,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: diceId5
       objectReference: {fileID: 0}
+    - target: {fileID: 8539482446165998505, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9137150297180443550, guid: 2e7ea97af22f70d4dbc69fddc3b3ab74, type: 3}
       propertyPath: prefabId
       value: 6
