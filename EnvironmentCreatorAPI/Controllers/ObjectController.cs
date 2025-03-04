@@ -119,5 +119,22 @@ namespace EnvironmentCreatorAPI.Controllers
             return Ok(object2D);
         }
 
+
+        // DELETE object by ID
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteObject(int id)
+        {
+            var object2D = await _context.Objects.FindAsync(id);
+            if (object2D == null)
+            {
+                return NotFound("Object not found.");
+            }
+
+            _context.Objects.Remove(object2D);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // No content response indicates successful deletion
+        }
+
     }
 }
