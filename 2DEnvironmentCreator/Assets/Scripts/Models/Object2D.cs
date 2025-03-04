@@ -3,7 +3,9 @@ using UnityEngine;
 [System.Serializable]
 public class Object2D
 {
-    public int id;
+    [SerializeField] private int objectId; // Matches the JSON property name
+    public int id => objectId; // Expose as 'id' for existing code
+
     public int environmentId;
     public int prefabId;
     public float positionX;
@@ -13,8 +15,23 @@ public class Object2D
     public float rotationZ;
     public int sortingLayer;
 
+    // Constructor with default values
+    public Object2D()
+    {
+        objectId = -1;
+        environmentId = 0;
+        prefabId = 0;
+        positionX = 0f;
+        positionY = 0f;
+        scaleX = 1f;
+        scaleY = 1f;
+        rotationZ = 0f;
+        sortingLayer = 0;
+    }
+
     public Object2D(int environmentId, int prefabId, float positionX, float positionY, float scaleX, float scaleY, float rotationZ, int sortingLayer)
     {
+        this.objectId = -1;
         this.environmentId = environmentId;
         this.prefabId = prefabId;
         this.positionX = positionX;

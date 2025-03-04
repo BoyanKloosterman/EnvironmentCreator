@@ -10,12 +10,12 @@ public class EnvironmentManager : MonoBehaviour
     public Button backButton;
     public Button saveButton;
     public Object2DApiClient object2DApiClient;
-    private int environmentId;
+    public int environmentId;
     private List<GameObject> draggedObjects = new List<GameObject>();  // Store dragged objects temporarily
     private int currentPrefabId;
     public GameObject lastSelectedObject;
     public float gridSize = 1f;
-
+    private List<GameObject> objectsToSave = new List<GameObject>();
     public GameObject prefab1, prefab2, prefab3, prefab4, prefab5, prefab6;
 
     void Start()
@@ -57,13 +57,37 @@ public class EnvironmentManager : MonoBehaviour
 
     public void SaveObjects()
     {
-        foreach (GameObject obj in draggedObjects)
+        // Find all objects with DiceDragHandler component
+        DiceDragHandler[] dragHandlers = FindObjectsOfType<DiceDragHandler>();
+
+        // Filter only moved objects
+        var movedObjects = new List<DiceDragHandler>();
+        foreach (DiceDragHandler dragHandler in dragHandlers)
         {
-            SaveObjectToEnvironment(obj, currentPrefabId);  // Save each dragged object
+            if (dragHandler.hasBeenMoved)
+            {
+                movedObjects.Add(dragHandler);
+            }
         }
 
-        // Clear the list after saving
-        draggedObjects.Clear();
+        if (movedObjects.Count == 0)
+        {
+            Debug.Log("No objects have been moved to save.");
+            return;
+        }
+
+        Debug.Log($"Saving {movedObjects.Count} moved objects");
+
+        foreach (DiceDragHandler dragHandler in movedObjects)
+        {
+            if (dragHandler.gameObject != null)
+            {
+                // Use the existing method from DiceDragHandler to update or save
+                dragHandler.UpdateExistingObject();
+            }
+        }
+
+        Debug.Log("Save objects process completed");
     }
 
     public void SaveObjectToEnvironment(GameObject obj, int prefabId)
@@ -87,6 +111,7 @@ public class EnvironmentManager : MonoBehaviour
 
         StartCoroutine(PostObjectToEnvironment(object2D));
     }
+
 
     public IEnumerator PostObjectToEnvironment(Object2D object2D)
     {
@@ -138,14 +163,27 @@ public class EnvironmentManager : MonoBehaviour
             var response = task.Result;
             if (response is WebRequestData<List<Object2D>> data)
             {
+                // Log the raw data for diagnostic purposes
+                Debug.Log($"Total objects loaded: {data.Data.Count}");
                 foreach (var objectData in data.Data)
                 {
-                    RestoreObject(objectData);
+                    // Add detailed logging
+                    Debug.Log($"Loaded Object - ID: {objectData.id}, PrefabId: {objectData.prefabId}, Position: ({objectData.positionX}, {objectData.positionY})");
+
+                    // Only restore objects with valid IDs
+                    if (objectData.id > 0)
+                    {
+                        RestoreObject(objectData);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Skipping object with invalid ID: {objectData.id}");
+                    }
                 }
             }
             else
             {
-                Debug.LogError("Failed to load objects.");
+                Debug.LogError("Failed to load objects or invalid response type.");
             }
         }
         else
@@ -161,6 +199,13 @@ public class EnvironmentManager : MonoBehaviour
 
     public void RestoreObject(Object2D objectData)
     {
+        // Validate input
+        if (objectData == null)
+        {
+            Debug.LogError("Attempted to restore null object data");
+            return;
+        }
+
         GameObject prefab = GetPrefabById(objectData.prefabId);
         if (prefab != null)
         {
@@ -168,12 +213,21 @@ public class EnvironmentManager : MonoBehaviour
             GameObject obj = Instantiate(prefab, snappedPosition, Quaternion.Euler(0, 0, objectData.rotationZ));
             obj.transform.localScale = new Vector3(objectData.scaleX, objectData.scaleY, 1);
             obj.GetComponent<Renderer>().sortingOrder = objectData.sortingLayer;
+
+            // Set the existing object data for the drag handler
+            DiceDragHandler dragHandler = obj.GetComponent<DiceDragHandler>();
+            if (dragHandler != null)
+            {
+                // Always set the object data, but with a more permissive validation
+                dragHandler.SetExistingObjectData(objectData);
+            }
         }
         else
         {
-            Debug.LogWarning("Prefab not found for ID: " + objectData.prefabId);
+            Debug.LogWarning($"Prefab not found for ID: {objectData.prefabId}");
         }
     }
+
 
     public GameObject GetPrefabById(int prefabId)
     {
