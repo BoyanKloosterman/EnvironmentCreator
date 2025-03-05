@@ -59,11 +59,11 @@ public class EnvironmentCreate : MonoBehaviour
             return;
         }
 
-        int userId = PlayerPrefs.GetInt("UserId");
+        string userId = PlayerPrefs.GetString("UserId"); // Changed from GetInt to GetString
         Environment2D newEnvironment = new Environment2D
         {
             name = name,
-            userId = userId,
+            userId = userId, // Changed from int to string
             height = height, // Set height
             width = width    // Set width
         };
@@ -105,4 +105,3 @@ public class EnvironmentCreate : MonoBehaviour
         }
     }
 }
-

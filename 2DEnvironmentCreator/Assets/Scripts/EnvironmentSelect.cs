@@ -41,7 +41,7 @@ public class EnvironmentSelect : MonoBehaviour
             List<Environment2D> worlds = data.Data;
             if (worlds == null || worlds.Count == 0) return;
 
-            PlayerPrefs.SetInt("UserId", worlds[0].userId);
+            PlayerPrefs.SetString("UserId", worlds[0].userId); // Changed from SetInt to SetString
             PlayerPrefs.Save();
 
             for (int i = 0; i < Mathf.Min(worlds.Count, 5); i++)
@@ -120,6 +120,4 @@ public class EnvironmentSelect : MonoBehaviour
             Debug.LogError("Unexpected response type: " + response.GetType());
         }
     }
-
-
 }

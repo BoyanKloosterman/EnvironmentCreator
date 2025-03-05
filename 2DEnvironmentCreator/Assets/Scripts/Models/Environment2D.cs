@@ -5,7 +5,7 @@ public class Environment2D
 {
     public int environmentId;
     public string name;
-    public int userId;
+    public string userId;
 
     [JsonProperty("MaxHeight")]
     public int height;

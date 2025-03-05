@@ -1,8 +1,8 @@
-using UnityEngine;
-
 [System.Serializable]
 public class LoginResponse
 {
-    public string token;
-    public string userId;
+    public string tokenType;
+    public string accessToken;
+    public int expiresIn;
+    public string refreshToken;
 }

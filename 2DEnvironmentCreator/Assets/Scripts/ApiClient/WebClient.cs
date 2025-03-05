@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -14,25 +15,25 @@ public class WebClient : MonoBehaviour
         Debug.Log("Token set: " + token);
     }
 
-    public async Awaitable<IWebRequestReponse> SendGetRequest(string route)
+    public async Task<IWebRequestReponse> SendGetRequest(string route)
     {
         UnityWebRequest webRequest = CreateWebRequest("GET", route, "");
         return await SendWebRequest(webRequest);
     }
 
-    public async Awaitable<IWebRequestReponse> SendPostRequest(string route, string data)
+    public async Task<IWebRequestReponse> SendPostRequest(string route, string data)
     {
         UnityWebRequest webRequest = CreateWebRequest("POST", route, data);
         return await SendWebRequest(webRequest);
     }
 
-    public async Awaitable<IWebRequestReponse> SendPutRequest(string route, string data)
+    public async Task<IWebRequestReponse> SendPutRequest(string route, string data)
     {
         UnityWebRequest webRequest = CreateWebRequest("PUT", route, data);
         return await SendWebRequest(webRequest);
     }
 
-    public async Awaitable<IWebRequestReponse> SendDeleteRequest(string route)
+    public async Task<IWebRequestReponse> SendDeleteRequest(string route)
     {
         UnityWebRequest webRequest = CreateWebRequest("DELETE", route, "");
         return await SendWebRequest(webRequest);
@@ -63,7 +64,7 @@ public class WebClient : MonoBehaviour
         return webRequest;
     }
 
-    private async Awaitable<IWebRequestReponse> SendWebRequest(UnityWebRequest webRequest)
+    private async Task<IWebRequestReponse> SendWebRequest(UnityWebRequest webRequest)
     {
         await webRequest.SendWebRequest();
 
@@ -75,6 +76,7 @@ public class WebClient : MonoBehaviour
         else
         {
             Debug.LogError($"Request failed: {webRequest.responseCode} - {webRequest.error}");
+            Debug.LogError($"Response: {webRequest.downloadHandler.text}");
             return new WebRequestError(webRequest.error);
         }
     }
