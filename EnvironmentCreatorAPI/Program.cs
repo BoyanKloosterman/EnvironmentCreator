@@ -52,7 +52,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 app.MapGet("/", () => "API is up");
 app.UseHttpsRedirection();
-
+app.UseSwagger();
+app.UseSwaggerUI();
 // Enable authorization and authentication
 app.UseAuthentication();
 app.UseAuthorization();

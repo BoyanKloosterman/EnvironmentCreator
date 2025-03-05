@@ -4,5 +4,5 @@ using UnityEngine;
 public class LoginResponse
 {
     public string token;
-    public int userId;
+    public string userId;
 }

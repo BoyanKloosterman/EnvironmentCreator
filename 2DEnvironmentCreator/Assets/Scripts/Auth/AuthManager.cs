@@ -94,7 +94,7 @@ public class AuthManager : MonoBehaviour
         if (response is WebRequestData<string> data && data.Data == "Succes")
         {
             string token = PlayerPrefs.GetString("AuthToken", string.Empty);
-            string userId = PlayerPrefs.GetInt("UserId", 0).ToString();
+            string userId = PlayerPrefs.GetString("UserId", string.Empty);
 
             // Proceed with the scene change or other actions
             SceneManager.LoadScene("EnvironmentSelectScene");
