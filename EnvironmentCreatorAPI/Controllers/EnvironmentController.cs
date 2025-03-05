@@ -4,6 +4,7 @@ using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace EnvironmentCreatorAPI.Controllers
 {
@@ -14,55 +15,65 @@ namespace EnvironmentCreatorAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<EnvironmentController> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public EnvironmentController(ApplicationDbContext context, ILogger<EnvironmentController> logger)
+        public EnvironmentController(
+            ApplicationDbContext context,
+            ILogger<EnvironmentController> logger,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
             _logger = logger;
+            _userManager = userManager;
         }
 
         [HttpPost]
-        public IActionResult CreateEnvironment([FromBody] Environment2D world)
+        public async Task<IActionResult> CreateEnvironment([FromBody] Environment2D world)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            // Get current user ID using Identity Framework
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return Unauthorized("Invalid userId in token.");
+                return Unauthorized("User not authenticated.");
             }
 
+            // Store user ID in the environment
+            world.UserId = user.Id;
 
             if (string.IsNullOrWhiteSpace(world.Name) || world.Name.Length > 25)
                 return BadRequest("Naam moet tussen 1 en 25 karakters zijn.");
 
-            if (_context.Environments.Any(w => w.UserId == userId && w.Name == world.Name))
+            if (_context.Environments.Any(w => w.UserId == user.Id && w.Name == world.Name))
                 return BadRequest("Een wereld met deze naam bestaat al.");
 
-            if (_context.Environments.Count(w => w.UserId == userId) >= 5)
+            if (_context.Environments.Count(w => w.UserId == user.Id) >= 5)
                 return BadRequest("Je kunt maximaal 5 werelden hebben.");
 
             _context.Environments.Add(world);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(world);
         }
 
-
         [HttpGet]
-        public IActionResult GetEnvironments()
+        public async Task<IActionResult> GetEnvironments()
         {
             try
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null)
+                // Get current user ID using Identity Framework
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
                 {
-                    _logger.LogError("No userId found in token.");
-                    return Unauthorized("Token invalid or missing userId.");
+                    _logger.LogError("User not authenticated.");
+                    return Unauthorized("User not authenticated.");
                 }
 
-                var userId = int.Parse(userIdClaim.Value);
+                var userId = user.Id;
                 _logger.LogInformation("Fetching worlds for user: {UserId}", userId);
 
-                var environments = _context.Environments.Where(w => w.UserId == userId).ToList();
+                var environments = await _context.Environments
+                    .Where(w => w.UserId == userId)
+                    .ToListAsync();
 
                 if (environments == null || environments.Count == 0)
                 {
@@ -80,15 +91,17 @@ namespace EnvironmentCreatorAPI.Controllers
             }
         }
 
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEnvironment(int id)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            // Get current user ID using Identity Framework
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return Unauthorized("Invalid userId in token.");
+                return Unauthorized("User not authenticated.");
             }
+
+            var userId = user.Id;
 
             var environment = await _context.Environments
                 .FirstOrDefaultAsync(e => e.EnvironmentId == id && e.UserId == userId);
@@ -107,6 +120,5 @@ namespace EnvironmentCreatorAPI.Controllers
 
             return NoContent();
         }
-
     }
 }

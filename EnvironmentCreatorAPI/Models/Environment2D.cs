@@ -9,11 +9,11 @@ namespace EnvironmentCreatorAPI.Models
         [Key]
         public int EnvironmentId { get; set; }
 
-        [Required, ForeignKey("User")]
-        public int UserId { get; set; }
-        public User? User { get; set; }
+        [Required]
+        public string UserId { get; set; }
+        //public User? User { get; set; }
 
-        [Required, MaxLength(100)]
+        [Required, MaxLength(25)]
         public string Name { get; set; }
 
         [Required]

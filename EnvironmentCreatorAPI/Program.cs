@@ -1,68 +1,82 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using EnvironmentCreatorAPI.Data;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
-using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using Avans.Identity.Dapper;
+using Microsoft.AspNetCore.Identity.Data;
+using EnvironmentCreatorAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Keep your existing DbContext configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add logging
 builder.Services.AddLogging();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-});
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"];
+// Add Identity Framework with Dapper (correct configuration order)
+builder.Services
+    .AddAuthorization()
+    .AddIdentityApiEndpoints<IdentityUser>()
+    .AddDapperStores(options =>
+        options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection"));
 
-if (string.IsNullOrEmpty(secretKey))
-{
-    throw new InvalidOperationException("JWT SecretKey is missing from configuration.");
-}
+// Add HttpContextAccessor for accessing the current user
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+// Register the AuthenticationService
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+// Optional: Configure token options
+builder.Services
+    .AddOptions<BearerTokenOptions>()
+    .Bind(builder.Configuration.GetSection("BearerToken"))
+    .Configure(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ValidAudience = builder.Configuration["JwtSettings:ValidAudience"] ?? "https://avansict2226638.azurewebsites.net",
-            ValidIssuer = builder.Configuration["JwtSettings:ValidIssuer"] ?? "EnvironmentCreatorAPI"
-        };
+        options.BearerTokenExpiration = TimeSpan.FromHours(1);
+        options.RefreshTokenExpiration = TimeSpan.FromDays(7);
     });
 
-
+// Keep your existing controllers and Swagger configuration
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
     {
-        // Disable reference handling so that the output is a plain array.
         options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
     });
-
-
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Configure the HTTP request pipeline
 app.MapGet("/", () => "API is up");
 app.UseHttpsRedirection();
+
+// Enable authorization and authentication
 app.UseAuthentication();
 app.UseAuthorization();
-Console.WriteLine($"JWT Audience: {builder.Configuration["JwtSettings:ValidAudience"]}");
-Console.WriteLine($"JWT Issuer: {builder.Configuration["JwtSettings:ValidIssuer"]}");
-app.UseDeveloperExceptionPage();
-app.UseSwagger();
-app.UseSwaggerUI();
-app.MapControllers();
+
+// Map Identity API endpoints with correct syntax for ASP.NET Core 8
+app.MapGroup("account")
+   .MapIdentityApi<IdentityUser>();
+
+// Optional: Map a logout endpoint
+app.MapPost("/account/logout", async (SignInManager<IdentityUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Ok();
+});
+
+// Optional: Require authorization for all endpoints
+app.MapControllers().RequireAuthorization();
+
+// Development helpers
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.Run();
