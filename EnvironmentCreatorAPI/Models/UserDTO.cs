@@ -1,8 +1,8 @@
-﻿namespace EnvironmentCreatorAPI.Models
-{
-    public class UserDTO
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-}
+﻿//namespace EnvironmentCreatorAPI.Models
+//{
+//    public class UserDTO
+//    {
+//        public string Username { get; set; }
+//        public string Password { get; set; }
+//    }
+//}
