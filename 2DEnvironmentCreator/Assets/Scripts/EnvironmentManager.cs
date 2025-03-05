@@ -1,25 +1,28 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
 public class EnvironmentManager : MonoBehaviour
 {
     public Button backButton;
-    public Object2DApiClient object2DApiClient; // Reference to the Object2DApiClient
-    private int environmentId;
-    private GameObject currentObject;
+    public Button saveButton;
+    public Object2DApiClient object2DApiClient;
+    public int environmentId;
+    private List<GameObject> draggedObjects = new List<GameObject>();  // Store dragged objects temporarily
     private int currentPrefabId;
-
-    public float gridSize = 1f; // Define grid size for snapping
-
+    public GameObject lastSelectedObject;
+    public float gridSize = 1f;
+    private List<GameObject> objectsToSave = new List<GameObject>();
     public GameObject prefab1, prefab2, prefab3, prefab4, prefab5, prefab6;
 
     void Start()
     {
         backButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentSelectScene"));
+        saveButton.onClick.AddListener(SaveObjects);  // Save all dragged objects when Save button is pressed
+
         environmentId = PlayerPrefs.GetInt("SelectedEnvironmentId", 0);
 
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
@@ -46,36 +49,45 @@ public class EnvironmentManager : MonoBehaviour
 
     public void SelectObject(GameObject obj, int prefabId)
     {
-        currentObject = obj;
         currentPrefabId = prefabId;
-        StartCoroutine(UpdateObjectState());
+        lastSelectedObject = obj;
+        // Store the dragged object temporarily
+        draggedObjects.Add(obj);
     }
 
-    IEnumerator UpdateObjectState()
+    public void SaveObjects()
     {
-        if (currentObject == null) yield break;
+        // Find all objects with DiceDragHandler component
+        DiceDragHandler[] dragHandlers = FindObjectsOfType<DiceDragHandler>();
 
-        Vector3 lastPosition = currentObject.transform.position;
-        Vector3 lastScale = currentObject.transform.localScale;
-        Quaternion lastRotation = currentObject.transform.rotation;
-
-        while (currentObject != null)
+        // Filter only moved objects
+        var movedObjects = new List<DiceDragHandler>();
+        foreach (DiceDragHandler dragHandler in dragHandlers)
         {
-            Vector3 snappedPosition = SnapToGrid(currentObject.transform.position);
-            if (lastPosition != snappedPosition ||
-                lastScale != currentObject.transform.localScale ||
-                lastRotation != currentObject.transform.rotation)
+            if (dragHandler.hasBeenMoved)
             {
-                currentObject.transform.position = snappedPosition;
-                SaveObjectToEnvironment(currentObject, currentPrefabId);
-
-                lastPosition = snappedPosition;
-                lastScale = currentObject.transform.localScale;
-                lastRotation = currentObject.transform.rotation;
+                movedObjects.Add(dragHandler);
             }
-
-            yield return new WaitForSeconds(0.5f);
         }
+
+        if (movedObjects.Count == 0)
+        {
+            Debug.Log("No objects have been moved to save.");
+            return;
+        }
+
+        Debug.Log($"Saving {movedObjects.Count} moved objects");
+
+        foreach (DiceDragHandler dragHandler in movedObjects)
+        {
+            if (dragHandler.gameObject != null)
+            {
+                // Use the existing method from DiceDragHandler to update or save
+                dragHandler.UpdateExistingObject();
+            }
+        }
+
+        Debug.Log("Save objects process completed");
     }
 
     public void SaveObjectToEnvironment(GameObject obj, int prefabId)
@@ -100,7 +112,8 @@ public class EnvironmentManager : MonoBehaviour
         StartCoroutine(PostObjectToEnvironment(object2D));
     }
 
-    IEnumerator PostObjectToEnvironment(Object2D object2D)
+
+    public IEnumerator PostObjectToEnvironment(Object2D object2D)
     {
         var task = CreateObjectAsync(object2D);
         while (!task.IsCompleted)
@@ -137,7 +150,7 @@ public class EnvironmentManager : MonoBehaviour
         StartCoroutine(GetObjectsFromEnvironment());
     }
 
-    IEnumerator GetObjectsFromEnvironment()
+    public IEnumerator GetObjectsFromEnvironment()
     {
         var task = ReadObjectsAsync(environmentId.ToString());
         while (!task.IsCompleted)
@@ -150,14 +163,27 @@ public class EnvironmentManager : MonoBehaviour
             var response = task.Result;
             if (response is WebRequestData<List<Object2D>> data)
             {
+                // Log the raw data for diagnostic purposes
+                Debug.Log($"Total objects loaded: {data.Data.Count}");
                 foreach (var objectData in data.Data)
                 {
-                    RestoreObject(objectData);
+                    // Add detailed logging
+                    Debug.Log($"Loaded Object - ID: {objectData.id}, PrefabId: {objectData.prefabId}, Position: ({objectData.positionX}, {objectData.positionY})");
+
+                    // Only restore objects with valid IDs
+                    if (objectData.id > 0)
+                    {
+                        RestoreObject(objectData);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Skipping object with invalid ID: {objectData.id}");
+                    }
                 }
             }
             else
             {
-                Debug.LogError("Failed to load objects.");
+                Debug.LogError("Failed to load objects or invalid response type.");
             }
         }
         else
@@ -173,6 +199,13 @@ public class EnvironmentManager : MonoBehaviour
 
     public void RestoreObject(Object2D objectData)
     {
+        // Validate input
+        if (objectData == null)
+        {
+            Debug.LogError("Attempted to restore null object data");
+            return;
+        }
+
         GameObject prefab = GetPrefabById(objectData.prefabId);
         if (prefab != null)
         {
@@ -180,12 +213,21 @@ public class EnvironmentManager : MonoBehaviour
             GameObject obj = Instantiate(prefab, snappedPosition, Quaternion.Euler(0, 0, objectData.rotationZ));
             obj.transform.localScale = new Vector3(objectData.scaleX, objectData.scaleY, 1);
             obj.GetComponent<Renderer>().sortingOrder = objectData.sortingLayer;
+
+            // Set the existing object data for the drag handler
+            DiceDragHandler dragHandler = obj.GetComponent<DiceDragHandler>();
+            if (dragHandler != null)
+            {
+                // Always set the object data, but with a more permissive validation
+                dragHandler.SetExistingObjectData(objectData);
+            }
         }
         else
         {
-            Debug.LogWarning("Prefab not found for ID: " + objectData.prefabId);
+            Debug.LogWarning($"Prefab not found for ID: {objectData.prefabId}");
         }
     }
+
 
     public GameObject GetPrefabById(int prefabId)
     {
@@ -201,7 +243,6 @@ public class EnvironmentManager : MonoBehaviour
         }
     }
 
-    // Function to snap object positions to the grid
     private Vector3 SnapToGrid(Vector3 position)
     {
         float snappedX = Mathf.Round(position.x / gridSize) * gridSize;
@@ -209,4 +250,3 @@ public class EnvironmentManager : MonoBehaviour
         return new Vector3(snappedX, snappedY, 0);
     }
 }
-

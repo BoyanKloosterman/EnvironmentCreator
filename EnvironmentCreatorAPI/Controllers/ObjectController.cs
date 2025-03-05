@@ -89,5 +89,52 @@ namespace EnvironmentCreatorAPI.Controllers
             return Ok(objects);
         }
 
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutObject(int id, [FromBody] Object2DDto objectDto)
+        {
+            if (objectDto == null)
+            {
+                return BadRequest("Object data is invalid.");
+            }
+
+            var object2D = await _context.Objects.FindAsync(id);
+            if (object2D == null)
+            {
+                return NotFound("Object not found.");
+            }
+
+            // Update the object's properties
+            object2D.PrefabId = objectDto.PrefabId;
+            object2D.PositionX = objectDto.PositionX;
+            object2D.PositionY = objectDto.PositionY;
+            object2D.ScaleX = objectDto.ScaleX;
+            object2D.ScaleY = objectDto.ScaleY;
+            object2D.RotationZ = objectDto.RotationZ;
+            object2D.SortingLayer = objectDto.SortingLayer;
+
+            _context.Objects.Update(object2D);
+            await _context.SaveChangesAsync();
+
+            return Ok(object2D);
+        }
+
+
+        // DELETE object by ID
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteObject(int id)
+        {
+            var object2D = await _context.Objects.FindAsync(id);
+            if (object2D == null)
+            {
+                return NotFound("Object not found.");
+            }
+
+            _context.Objects.Remove(object2D);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // No content response indicates successful deletion
+        }
+
     }
 }

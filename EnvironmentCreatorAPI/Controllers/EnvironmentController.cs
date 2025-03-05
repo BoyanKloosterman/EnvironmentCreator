@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using EnvironmentCreatorAPI.Data;
 using EnvironmentCreatorAPI.Models;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace EnvironmentCreatorAPI.Controllers
 {
@@ -83,10 +84,18 @@ namespace EnvironmentCreatorAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEnvironment(int id)
         {
-            var environment = await _context.Environments.FindAsync(id);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
+            {
+                return Unauthorized("Invalid userId in token.");
+            }
+
+            var environment = await _context.Environments
+                .FirstOrDefaultAsync(e => e.EnvironmentId == id && e.UserId == userId);
+
             if (environment == null)
             {
-                return NotFound("Environment not found.");
+                return NotFound("Environment not found or not owned by user.");
             }
 
             var objectsToDelete = _context.Objects.Where(o => o.EnvironmentId == id);
