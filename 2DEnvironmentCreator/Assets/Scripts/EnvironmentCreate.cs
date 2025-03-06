@@ -59,7 +59,9 @@ public class EnvironmentCreate : MonoBehaviour
             return;
         }
 
-        string userId = PlayerPrefs.GetString("UserId"); // Changed from GetInt to GetString
+        string userId = PlayerPrefs.GetString("userId", "");
+        Debug.Log("Retrieved UserId from PlayerPrefs: " + userId);
+
         Environment2D newEnvironment = new Environment2D
         {
             name = name,
