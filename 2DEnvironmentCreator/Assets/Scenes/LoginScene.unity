@@ -915,7 +915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a16ed94fee1fd3e45b2c468619477d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usernameField: {fileID: 2106553421}
+  emailField: {fileID: 2106553421}
   passwordField: {fileID: 39714672}
   feedbackText: {fileID: 1886499592}
   userApiClient: {fileID: 489463399}

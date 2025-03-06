@@ -11,6 +11,7 @@ public class EnvironmentSelect : MonoBehaviour
     public GameObject worldPrefab;
     public Transform worldsPanel;
     public Button createWorldButton;
+    public Button logoutButton; // Reference to the logout button
     public Environment2DApiClient environmentApiClient; // Reference to the Environment2DApiClient
 
     void Start()
@@ -19,6 +20,16 @@ public class EnvironmentSelect : MonoBehaviour
         Debug.Log("Stored Auth Token: " + token); // Check if token is stored correctly
 
         createWorldButton.onClick.AddListener(() => SceneManager.LoadScene("EnvironmentCreateScene"));
+
+        // Add listener for the logout button
+        if (logoutButton != null)
+        {
+            logoutButton.onClick.AddListener(Logout);
+        }
+        else
+        {
+            Debug.LogWarning("Logout button reference not set. Please assign it in the Inspector.");
+        }
 
         if (string.IsNullOrEmpty(token))
         {
@@ -30,6 +41,21 @@ public class EnvironmentSelect : MonoBehaviour
             environmentApiClient.webClient.SetToken(token); // Set the token in the WebClient instance
             LoadWorlds();
         }
+    }
+
+    // Logout function to clear user data and return to login screen
+    public void Logout()
+    {
+        // Clear authentication data
+        PlayerPrefs.DeleteKey("AuthToken");
+        PlayerPrefs.DeleteKey("UserId");
+        PlayerPrefs.DeleteKey("SelectedEnvironmentId");
+        PlayerPrefs.Save();
+
+        Debug.Log("User logged out successfully");
+
+        // Return to login screen
+        SceneManager.LoadScene("LoginScene");
     }
 
     private async void LoadWorlds()
