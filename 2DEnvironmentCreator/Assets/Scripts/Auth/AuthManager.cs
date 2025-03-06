@@ -7,14 +7,14 @@ using Newtonsoft.Json.Linq; // Add Newtonsoft.Json for better JSON parsing
 
 public class AuthManager : MonoBehaviour
 {
-    public InputField usernameField;
+    public InputField emailField;
     public InputField passwordField;
     public TextMeshProUGUI feedbackText;
     public UserApiClient userApiClient;
 
     public void Register()
     {
-        string email = usernameField.text;
+        string email = emailField.text;
         string password = passwordField.text;
 
         if (!IsPasswordValid(password, out string errorMessage))
@@ -29,7 +29,7 @@ public class AuthManager : MonoBehaviour
 
     public void Login()
     {
-        string email = usernameField.text;
+        string email = emailField.text;
         string password = passwordField.text;
 
         if (!IsPasswordValid(password, out string errorMessage))
@@ -70,9 +70,9 @@ public class AuthManager : MonoBehaviour
         return string.IsNullOrEmpty(errorMessage);
     }
 
-    private async void RegisterUser(string username, string password)
+    private async void RegisterUser(string email, string password)
     {
-        User userData = new User(username, password);
+        User userData = new User(email, password);
         var response = await userApiClient.Register(userData);
 
         // Process registration response
@@ -87,9 +87,9 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    private async void LoginUser(string username, string password)
+    private async void LoginUser(string email, string password)
     {
-        User userData = new User(username, password);
+        User userData = new User(email, password);
         var response = await userApiClient.Login(userData);
 
         if (response is WebRequestData<string> data && data.Data == "Succes")
