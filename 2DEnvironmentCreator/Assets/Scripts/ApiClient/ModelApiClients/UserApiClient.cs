@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public class UserApiClient : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class UserApiClient : MonoBehaviour
 
     public async Awaitable<IWebRequestReponse> Register(User user)
     {
-        string route = "/api/user/register";
+        string route = "/account/register";
         string data = JsonUtility.ToJson(user);
 
         return await webClient.SendPostRequest(route, data);
@@ -17,7 +18,7 @@ public class UserApiClient : MonoBehaviour
 
     public async Awaitable<IWebRequestReponse> Login(User user)
     {
-        string route = "/api/user/login";
+        string route = "/account/login";
         string data = JsonUtility.ToJson(user);
 
         IWebRequestReponse response = await webClient.SendPostRequest(route, data);
@@ -30,24 +31,22 @@ public class UserApiClient : MonoBehaviour
         {
             case WebRequestData<string> data:
                 Debug.Log("Response data raw: " + data.Data);
-                // Assuming the token is in the response JSON under the "token" key
-                string token = ExtractTokenFromJson(data.Data);
-                webClient.SetToken(token);
-                PlayerPrefs.SetString("AuthToken", token);  // Save the token locally
-                return new WebRequestData<string>("Succes");
+                // Deserialize the response to LoginResponse
+                LoginResponse loginResponse = JsonConvert.DeserializeObject<LoginResponse>(data.Data);
+                if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.accessToken))
+                {
+                    webClient.SetToken(loginResponse.accessToken);
+                    PlayerPrefs.SetString("AuthToken", loginResponse.accessToken);  // Save the token locally
+                    PlayerPrefs.SetString("TokenType", loginResponse.tokenType);
+                    PlayerPrefs.SetString("RefreshToken", loginResponse.refreshToken);
+                    PlayerPrefs.Save();
+                    return new WebRequestData<string>("Succes");
+                }
+                return new WebRequestData<string>("Failed");
             default:
                 return webRequestResponse;
         }
     }
-
-    private string ExtractTokenFromJson(string json)
-    {
-        // Extract the token value from the JSON response
-        var tokenStart = json.IndexOf("\"token\":\"") + 9;
-        var tokenEnd = json.IndexOf("\"", tokenStart);
-        return json.Substring(tokenStart, tokenEnd - tokenStart);
-    }
-
 
 }
 

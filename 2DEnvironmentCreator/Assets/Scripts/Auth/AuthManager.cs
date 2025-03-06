@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Threading.Tasks; // Add this to work with async/await
+using Newtonsoft.Json.Linq; // Add Newtonsoft.Json for better JSON parsing
 
 public class AuthManager : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class AuthManager : MonoBehaviour
 
     public void Register()
     {
-        string username = usernameField.text;
+        string email = usernameField.text;
         string password = passwordField.text;
 
         if (!IsPasswordValid(password, out string errorMessage))
@@ -23,12 +24,12 @@ public class AuthManager : MonoBehaviour
         }
 
         // Use async method for registration
-        RegisterUser(username, password);
+        RegisterUser(email, password);
     }
 
     public void Login()
     {
-        string username = usernameField.text;
+        string email = usernameField.text;
         string password = passwordField.text;
 
         if (!IsPasswordValid(password, out string errorMessage))
@@ -38,7 +39,7 @@ public class AuthManager : MonoBehaviour
         }
 
         // Use async method for login
-        LoginUser(username, password);
+        LoginUser(email, password);
     }
 
     private bool IsPasswordValid(string password, out string errorMessage)
@@ -93,15 +94,12 @@ public class AuthManager : MonoBehaviour
 
         if (response is WebRequestData<string> data && data.Data == "Succes")
         {
-            string token = PlayerPrefs.GetString("AuthToken", string.Empty);
-            string userId = PlayerPrefs.GetInt("UserId", 0).ToString();
-
-            // Proceed with the scene change or other actions
+            feedbackText.text = "Login succesvol!";
             SceneManager.LoadScene("EnvironmentSelectScene");
         }
         else
         {
-            feedbackText.text = "Inloggen mislukt: " + response.ToString();
+            feedbackText.text = "Login mislukt: " + response.ToString();
             Debug.LogError("Login Error: " + response.ToString());
         }
     }

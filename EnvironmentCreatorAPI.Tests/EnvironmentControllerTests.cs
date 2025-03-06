@@ -11,6 +11,8 @@ using System.Linq;
 using System.Security.Claims;
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace EnvironmentCreatorAPI.Tests
 {
@@ -18,6 +20,8 @@ namespace EnvironmentCreatorAPI.Tests
     public class EnvironmentControllerTests
     {
         private Mock<ILogger<EnvironmentController>> _mockLogger = new();
+        private Mock<UserManager<IdentityUser>> _mockUserManager = new(
+            new Mock<IUserStore<IdentityUser>>().Object, null, null, null, null, null, null, null, null);
         private EnvironmentController _controller = null!;
         private ApplicationDbContext _context = null!;
 
@@ -33,7 +37,7 @@ namespace EnvironmentCreatorAPI.Tests
             _context.Database.EnsureCreated();
 
             _mockLogger = new Mock<ILogger<EnvironmentController>>();
-            _controller = new EnvironmentController(_context, _mockLogger.Object);
+            _controller = new EnvironmentController(_context, _mockLogger.Object, _mockUserManager.Object);
 
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
             {
@@ -44,20 +48,24 @@ namespace EnvironmentCreatorAPI.Tests
             {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
+
+            // Setup UserManager to return a user when GetUserAsync is called
+            _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new IdentityUser { Id = "1", UserName = "testuser" });
         }
 
         [TestMethod]
-        public void CreateWorld_ShouldReturnOk_WhenWorldIsCreatedSuccessfully()
+        public async Task CreateWorld_ShouldReturnOk_WhenWorldIsCreatedSuccessfully()
         {
             var world = new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "NewWorld",
                 MaxWidth = 100,
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateEnvironment(world);
+            var result = await _controller.CreateEnvironment(world);
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
@@ -69,17 +77,17 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void CreateWorld_ShouldReturnBadRequest_WhenWorldNameIsInvalid()
+        public async Task CreateWorld_ShouldReturnBadRequest_WhenWorldNameIsInvalid()
         {
             var world = new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "",
                 MaxWidth = 100,
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateEnvironment(world);
+            var result = await _controller.CreateEnvironment(world);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
@@ -88,11 +96,11 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void CreateWorld_ShouldReturnBadRequest_WhenWorldNameAlreadyExists()
+        public async Task CreateWorld_ShouldReturnBadRequest_WhenWorldNameAlreadyExists()
         {
             _context.Environments.Add(new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "ExistingWorld",
                 MaxWidth = 100,
                 MaxHeight = 100
@@ -101,13 +109,13 @@ namespace EnvironmentCreatorAPI.Tests
 
             var world = new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "ExistingWorld",
                 MaxWidth = 100,
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateEnvironment(world);
+            var result = await _controller.CreateEnvironment(world);
 
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
@@ -116,13 +124,14 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void CreateWorld_ShouldReturnBadRequest_WhenUserHasMaxWorlds()
+        public async Task CreateWorld_ShouldReturnBadRequest_WhenUserHasMaxWorlds()
         {
+            // Arrange
             for (int i = 0; i < 5; i++)
             {
                 _context.Environments.Add(new Environment2D
                 {
-                    UserId = 1,
+                    UserId = "1",
                     Name = "World" + i,
                     MaxWidth = 100,
                     MaxHeight = 100
@@ -132,14 +141,16 @@ namespace EnvironmentCreatorAPI.Tests
 
             var world = new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "NewWorld",
                 MaxWidth = 100,
                 MaxHeight = 100
             };
 
-            var result = _controller.CreateEnvironment(world);
+            // Act
+            var result = await _controller.CreateEnvironment(world);
 
+            // Assert
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
@@ -147,18 +158,18 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void GetWorlds_ShouldReturnOk_WhenWorldsExist()
+        public async Task GetWorlds_ShouldReturnOk_WhenWorldsExist()
         {
             _context.Environments.Add(new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "World1",
                 MaxWidth = 100,
                 MaxHeight = 100
             });
             _context.SaveChanges();
 
-            var result = _controller.GetEnvironments();
+            var result = await _controller.GetEnvironments();
 
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
@@ -170,9 +181,9 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public void GetWorlds_ShouldReturnNotFound_WhenNoWorldsExist()
+        public async Task GetWorlds_ShouldReturnNotFound_WhenNoWorldsExist()
         {
-            var result = _controller.GetEnvironments();
+            var result = await _controller.GetEnvironments();
 
             var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult);
@@ -181,12 +192,12 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public async Task DeleteWorld_ShouldReturnOk_WhenWorldIsDeletedSuccessfully()
+        public async Task DeleteWorld_ShouldReturnNoContent_WhenWorldIsDeletedSuccessfully()
         {
             // Arrange
             var world = new Environment2D
             {
-                UserId = 1,
+                UserId = "1",
                 Name = "WorldToDelete",
                 MaxWidth = 100,
                 MaxHeight = 100

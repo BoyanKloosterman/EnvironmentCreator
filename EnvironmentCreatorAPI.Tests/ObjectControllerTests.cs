@@ -35,7 +35,7 @@ namespace EnvironmentCreatorAPI.Tests
             _context.Environments.Add(new Environment2D
             {
                 EnvironmentId = 1,
-                UserId = 1,
+                UserId = "1",
                 Name = "TestEnvironment",
                 MaxWidth = 100,
                 MaxHeight = 100

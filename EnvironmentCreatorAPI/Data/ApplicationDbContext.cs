@@ -7,7 +7,6 @@ namespace EnvironmentCreatorAPI.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Environment2D> Environments { get; set; }
         public DbSet<Object2D> Objects { get; set; }
     }
