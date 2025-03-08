@@ -3,8 +3,8 @@ using UnityEngine;
 [System.Serializable]
 public class Object2D
 {
-    [SerializeField] private int objectId; // Matches the JSON property name
-    public int id => objectId; // Expose as 'id' for existing code
+    [SerializeField] private int objectId;
+    public int id => objectId;
 
     public int environmentId;
     public int prefabId;
@@ -15,7 +15,6 @@ public class Object2D
     public float rotationZ;
     public int sortingLayer;
 
-    // Constructor with default values
     public Object2D()
     {
         objectId = -1;

@@ -66,8 +66,8 @@ public class EnvironmentCreate : MonoBehaviour
         {
             name = name,
             userId = userId, // Changed from int to string
-            height = height, // Set height
-            width = width    // Set width
+            height = height,
+            width = width
         };
 
         StartCoroutine(PostWorld(newEnvironment));

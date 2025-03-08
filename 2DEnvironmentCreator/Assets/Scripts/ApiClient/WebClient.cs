@@ -64,20 +64,30 @@ public class WebClient : MonoBehaviour
         return webRequest;
     }
 
-    private async Task<IWebRequestReponse> SendWebRequest(UnityWebRequest webRequest)
+    private async Task<IWebRequestReponse> SendWebRequest(UnityWebRequest request)
     {
-        await webRequest.SendWebRequest();
+        try
+        {
+            await request.SendWebRequest();
 
-        if (webRequest.result == UnityWebRequest.Result.Success)
-        {
-            string responseData = webRequest.downloadHandler.text;
-            return new WebRequestData<string>(responseData);
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Request failed: " + request.responseCode + " - " + request.error);
+                Debug.LogError("Response: " + request.downloadHandler.text);
+
+                return new WebRequestError(
+                    statusCode: (int)request.responseCode,
+                    message: request.error,
+                    details: request.downloadHandler.text
+                );
+            }
+
+            return new WebRequestData<string>(request.downloadHandler.text);
         }
-        else
+        catch (Exception e)
         {
-            Debug.LogError($"Request failed: {webRequest.responseCode} - {webRequest.error}");
-            Debug.LogError($"Response: {webRequest.downloadHandler.text}");
-            return new WebRequestError(webRequest.error);
+            Debug.LogError("Exception in web request: " + e.Message);
+            return new WebRequestError(message: e.Message);
         }
     }
 

@@ -47,7 +47,6 @@ public class Object2DApiClient : MonoBehaviour
                 Debug.Log($"Raw response: {stringResponse.Data}");
             }
 
-            // Parse the response similar to CreateObject2D method
             return ParseObject2DResponse(webRequestResponse);
         }
         catch (System.Exception ex)
@@ -88,7 +87,6 @@ public class Object2DApiClient : MonoBehaviour
             case WebRequestData<string> data:
                 try
                 {
-                    // Directly parse the JSON array
                     List<Object2D> objects = JsonHelper.ParseJsonArray<Object2D>(data.Data);
 
                     // Log parsed objects for verification

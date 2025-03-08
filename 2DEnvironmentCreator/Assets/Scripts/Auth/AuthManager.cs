@@ -99,7 +99,16 @@ public class AuthManager : MonoBehaviour
         }
         else
         {
-            feedbackText.text = "Login mislukt: " + response.ToString();
+            if (response.ToString() == "WebRequestError" &&
+                (response is WebRequestError error && error.StatusCode == 401))
+            {
+                feedbackText.text = "Email of wachtwoord is onjuist.";
+            }
+            else
+            {
+                feedbackText.text = "Login mislukt: " + response.ToString();
+            }
+
             Debug.LogError("Login Error: " + response.ToString());
         }
     }
