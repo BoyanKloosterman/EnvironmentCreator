@@ -126,24 +126,22 @@ public class EnvironmentSelect : MonoBehaviour
 
     private async Task DeleteWorldAsync(int environmentId, string token, GameObject worldObject)
     {
+        // Send the delete request
         var response = await environmentApiClient.DeleteEnvironment(environmentId.ToString());
 
-        if (response is WebRequestData<string> data)
+        // Check if the response is of the expected type (204 No Content or empty response)
+        if (response is WebRequestData<Environment2D> data && data.Data == null)
         {
-            Debug.Log("Delete response data: " + data.Data);
-            if (string.IsNullOrEmpty(data.Data) || data.Data == "Success")
-            {
-                Destroy(worldObject);
-                Debug.Log("World deleted successfully.");
-            }
-            else
-            {
-                Debug.LogError("Error deleting world: " + data.Data);
-            }
+            // Successfully deleted, no content in response
+            Destroy(worldObject);
+            Debug.Log("World deleted successfully.");
         }
         else
         {
-            Debug.LogError("Unexpected response type: " + response.GetType());
+            // Unexpected response type or error
+            Debug.LogError("Unexpected response or error deleting world. Response: " + response?.GetType());
         }
     }
+
+
 }
