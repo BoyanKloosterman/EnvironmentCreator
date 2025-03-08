@@ -190,7 +190,6 @@ namespace EnvironmentCreatorAPI.Tests
             Assert.AreEqual(404, notFoundResult.StatusCode);
             Assert.AreEqual("No worlds found.", notFoundResult.Value);
         }
-
         [TestMethod]
         public async Task DeleteWorld_ShouldReturnSuccess_WhenWorldIsDeletedSuccessfully()
         {
@@ -209,8 +208,11 @@ namespace EnvironmentCreatorAPI.Tests
             var result = await _controller.DeleteEnvironment(world.EnvironmentId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
         }
+
 
         [TestMethod]
         public async Task DeleteWorld_ShouldReturnNotFound_WhenWorldDoesNotExist()
