@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Collections;
 
 public class DiceDragHandler : MonoBehaviour
 {
@@ -11,6 +12,14 @@ public class DiceDragHandler : MonoBehaviour
     private bool hasServerRecord = false;
     private Object2D existingObjectData;
     private Vector3 lastSavedPosition;
+    private Vector3 originalScale;
+
+    // Animation parameters
+    public float clickGrowFactor = 1.2f;
+    public float clickGrowDuration = 0.3f;
+    public float wiggleDuration = 0.5f;
+    public float wiggleStrength = 5f;
+    private bool isAnimating = false;
 
     public bool hasBeenMoved { get; private set; } = false;
 
@@ -18,6 +27,7 @@ public class DiceDragHandler : MonoBehaviour
     {
         environmentManager = FindFirstObjectByType<EnvironmentManager>();
         lastSavedPosition = transform.position;
+        originalScale = transform.localScale;
     }
 
     private void OnMouseDown()
@@ -29,6 +39,9 @@ public class DiceDragHandler : MonoBehaviour
         {
             environmentManager.lastSelectedObject = gameObject;
         }
+
+        // Start grow animation when clicked
+        StartCoroutine(GrowOnClick());
     }
 
     private void OnMouseUp()
@@ -36,19 +49,75 @@ public class DiceDragHandler : MonoBehaviour
         isDragging = false;
         if (environmentManager != null && environmentManager.lastSelectedObject == gameObject)
         {
+            bool positionChanged = Vector3.Distance(transform.position, lastSavedPosition) > 0.01f;
+
             // Check if position has actually changed
             if (!hasServerRecord)
             {
-                // First-time object, always save
+                // First-time object, always save and wiggle
                 SaveFirstTimeObject();
+                StartCoroutine(WiggleOnPlace());
             }
-            else if (Vector3.Distance(transform.position, lastSavedPosition) > 0.01f)
+            else if (positionChanged)
             {
                 // Update existing object if position changed significantly
                 hasBeenMoved = true;
+                StartCoroutine(WiggleOnPlace());
             }
         }
     }
+
+    private IEnumerator GrowOnClick()
+    {
+        if (isAnimating) yield break;
+        isAnimating = true;
+
+        Vector3 targetScale = originalScale * clickGrowFactor;
+        float elapsedTime = 0f;
+
+        // Grow
+        while (elapsedTime < clickGrowDuration / 2)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / (clickGrowDuration / 2);
+            transform.localScale = Vector3.Lerp(originalScale, targetScale, t);
+            yield return null;
+        }
+
+        // Shrink back
+        elapsedTime = 0f;
+        while (elapsedTime < clickGrowDuration / 2)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / (clickGrowDuration / 2);
+            transform.localScale = Vector3.Lerp(targetScale, originalScale, t);
+            yield return null;
+        }
+
+        transform.localScale = originalScale;
+        isAnimating = false;
+    }
+
+    private IEnumerator WiggleOnPlace()
+    {
+        if (isAnimating) yield break;
+        isAnimating = true;
+
+        float elapsedTime = 0f;
+        Quaternion originalRotation = transform.rotation;
+
+        while (elapsedTime < wiggleDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float wiggleAmount = Mathf.Sin(elapsedTime * 20f) * wiggleStrength * (1f - elapsedTime / wiggleDuration);
+            transform.rotation = originalRotation * Quaternion.Euler(0, 0, wiggleAmount);
+            yield return null;
+        }
+
+        transform.rotation = originalRotation;
+        isAnimating = false;
+    }
+
     private void SaveFirstTimeObject()
     {
         // Create a new Object2D for first-time save
