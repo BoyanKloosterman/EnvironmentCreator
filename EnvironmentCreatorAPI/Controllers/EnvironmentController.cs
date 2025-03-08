@@ -118,7 +118,7 @@ namespace EnvironmentCreatorAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Success");
         }
     }
 }
