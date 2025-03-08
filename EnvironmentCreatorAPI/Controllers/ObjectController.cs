@@ -133,7 +133,7 @@ namespace EnvironmentCreatorAPI.Controllers
             _context.Objects.Remove(object2D);
             await _context.SaveChangesAsync();
 
-            return Ok("Success");
+            return NoContent(); // No content response indicates successful deletion
         }
 
     }
