@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Assembly-CSharp-Editor")]
 
 public class AuthManager : MonoBehaviour
 {
@@ -42,7 +45,7 @@ public class AuthManager : MonoBehaviour
         LoginUser(email, password);
     }
 
-    private bool IsPasswordValid(string password, out string errorMessage)
+    internal bool IsPasswordValid(string password, out string errorMessage)
     {
         errorMessage = "";
 

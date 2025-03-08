@@ -4,6 +4,9 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Assembly-CSharp-Editor")]
 
 public class EnvironmentCreate : MonoBehaviour
 {
@@ -32,7 +35,7 @@ public class EnvironmentCreate : MonoBehaviour
         }
     }
 
-    void CreateWorld()
+    internal void CreateWorld()
     {
         string name = nameInput.text.Trim();
         if (!int.TryParse(heightInput.text, out int height) || !int.TryParse(widthInput.text, out int width))

@@ -5,6 +5,9 @@ using TMPro;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Assembly-CSharp-Editor")]
 
 public class EnvironmentSelect : MonoBehaviour
 {
@@ -14,7 +17,7 @@ public class EnvironmentSelect : MonoBehaviour
     public Button logoutButton;
     public Environment2DApiClient environmentApiClient;
 
-    void Start()
+    internal void Start()
     {
         string token = PlayerPrefs.GetString("AuthToken", "").Trim();
         Debug.Log("Stored Auth Token: " + token);
@@ -78,7 +81,7 @@ public class EnvironmentSelect : MonoBehaviour
         }
     }
 
-    void AddWorldToUI(Environment2D world)
+    internal void AddWorldToUI(Environment2D world)
     {
         GameObject obj = Instantiate(worldPrefab, worldsPanel);
 
