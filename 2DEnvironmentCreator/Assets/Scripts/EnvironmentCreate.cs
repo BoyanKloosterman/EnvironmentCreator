@@ -13,7 +13,7 @@ public class EnvironmentCreate : MonoBehaviour
     public Button createButton;
     public Button returnButton;
     public TextMeshProUGUI feedbackText;
-    public Environment2DApiClient environmentApiClient; // Reference to the Environment2DApiClient
+    public Environment2DApiClient environmentApiClient;
 
     void Start()
     {

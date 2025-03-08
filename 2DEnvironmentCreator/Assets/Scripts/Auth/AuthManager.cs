@@ -2,8 +2,8 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System.Threading.Tasks; // Add this to work with async/await
-using Newtonsoft.Json.Linq; // Add Newtonsoft.Json for better JSON parsing
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 public class AuthManager : MonoBehaviour
 {
