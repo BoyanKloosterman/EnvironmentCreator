@@ -192,7 +192,7 @@ namespace EnvironmentCreatorAPI.Tests
         }
 
         [TestMethod]
-        public async Task DeleteWorld_ShouldReturnNoContent_WhenWorldIsDeletedSuccessfully()
+        public async Task DeleteWorld_ShouldReturnSuccess_WhenWorldIsDeletedSuccessfully()
         {
             // Arrange
             var world = new Environment2D
@@ -209,7 +209,7 @@ namespace EnvironmentCreatorAPI.Tests
             var result = await _controller.DeleteEnvironment(world.EnvironmentId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NoContentResult));
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
         }
 
         [TestMethod]
