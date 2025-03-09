@@ -28,7 +28,6 @@ builder.Services.AddHttpContextAccessor();
 // Register the AuthenticationService
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-// Optional: Configure token options
 builder.Services
     .AddOptions<BearerTokenOptions>()
     .Bind(builder.Configuration.GetSection("BearerToken"))
@@ -62,17 +61,14 @@ app.UseAuthorization();
 app.MapGroup("account")
    .MapIdentityApi<IdentityUser>();
 
-// Optional: Map a logout endpoint
 app.MapPost("/account/logout", async (SignInManager<IdentityUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
     return Results.Ok();
 });
 
-// Optional: Require authorization for all endpoints
 app.MapControllers().RequireAuthorization();
 
-// Development helpers
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
