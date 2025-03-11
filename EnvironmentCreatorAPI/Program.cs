@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-app.MapGet("/", () => "API is up");
+app.MapGet("/", () => $"API is up Connectionstring: {connectionString}");
 app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
