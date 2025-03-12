@@ -92,7 +92,7 @@ namespace EnvironmentCreatorAPI.Tests
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Name should be between 1 and 25 characters.", badRequestResult.Value);
+            Assert.AreEqual("Name has to be between 1 and 25 characters.", badRequestResult.Value);
         }
 
         [TestMethod]
