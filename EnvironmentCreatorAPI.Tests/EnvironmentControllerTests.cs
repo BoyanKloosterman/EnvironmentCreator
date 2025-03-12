@@ -92,7 +92,7 @@ namespace EnvironmentCreatorAPI.Tests
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Naam moet tussen 1 en 25 karakters zijn.", badRequestResult.Value);
+            Assert.AreEqual("Name should be between 1 and 25 characters.", badRequestResult.Value);
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace EnvironmentCreatorAPI.Tests
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Een wereld met deze naam bestaat al.", badRequestResult.Value);
+            Assert.AreEqual("A world with this name already exists.", badRequestResult.Value);
         }
 
         [TestMethod]
@@ -154,7 +154,7 @@ namespace EnvironmentCreatorAPI.Tests
             var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult);
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Je kunt maximaal 5 werelden hebben.", badRequestResult.Value);
+            Assert.AreEqual("You can have a maximum of 5 worlds.", badRequestResult.Value);
         }
 
         [TestMethod]
