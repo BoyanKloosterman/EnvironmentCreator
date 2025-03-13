@@ -76,19 +76,49 @@ public class AuthManager : MonoBehaviour
     private async void RegisterUser(string email, string password)
     {
         User userData = new User(email, password);
+        Debug.Log("Attempting to register user: " + email);
         var response = await userApiClient.Register(userData);
+        Debug.Log("Raw response type: " + response.GetType().FullName);
 
-        // Process registration response
-        if (response is WebRequestData<string> data && data.Data == "Succes")
+        if (response is WebRequestData<string> data)
         {
-            feedbackText.text = "Registratie succesvol!";
+            Debug.Log("Response data: " + data.Data);
+
+            if (data.Data == "Succes" || string.IsNullOrEmpty(data.Data))
+            {
+                feedbackText.text = "Registratie succesvol!";
+                await Task.Delay(1000);
+                LoginUser(email, password);
+            }
+            else
+            {
+                feedbackText.text = "Registratie mislukt: " + data.Data;
+                Debug.LogError("Registration Error: " + data.Data);
+            }
+        }
+        else if (response is WebRequestError error)
+        {
+            Debug.LogError("Registration Error: Status=" + error.StatusCode + ", Message=" + error.Message);
+
+            if (error.Message.Contains("DuplicateUserName") ||
+                error.Message.Contains("already taken") ||
+                error.StatusCode == 409 ||
+                error.StatusCode == 400)
+            {
+                feedbackText.text = "Email is al geregistreerd.";
+            }
+            else
+            {
+                feedbackText.text = "Registratie mislukt: " + error.Message;
+            }
         }
         else
         {
-            feedbackText.text = "Registratie mislukt: " + response.ToString();
-            Debug.LogError("Registration Error: " + response.ToString());
+            Debug.LogError("Registration Error: Unknown response type: " + response?.ToString() ?? "null");
+            feedbackText.text = "Registratie mislukt: Onbekende fout";
         }
     }
+
 
     private async void LoginUser(string email, string password)
     {
