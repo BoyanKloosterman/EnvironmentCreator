@@ -15,7 +15,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add logging
 builder.Services.AddLogging();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-Console.WriteLine($"Connection string: {connectionString}");
 // or use the logger once it's configured
 // Add Identity Framework with Dapper (correct configuration order)
 builder.Services
@@ -51,7 +50,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-app.MapGet("/", () => $"API is up Connectionstring: {connectionString}");
+app.MapGet("/", () => $"API is up");
 app.UseHttpsRedirection();
 app.UseSwagger();
 app.UseSwaggerUI();
