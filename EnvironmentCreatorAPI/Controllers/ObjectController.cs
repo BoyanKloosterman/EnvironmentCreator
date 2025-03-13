@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using EnvironmentCreatorAPI.Data;
 
 namespace EnvironmentCreatorAPI.Controllers
-{ // Controller is ObjectController dus de naam van de controller is api/Object
+{
     [Route("api/[controller]")]
     [ApiController]
     public class ObjectsController : ControllerBase

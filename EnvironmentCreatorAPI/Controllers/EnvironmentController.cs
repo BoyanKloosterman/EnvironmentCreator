@@ -5,13 +5,11 @@ using EnvironmentCreatorAPI.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EnvironmentCreatorAPI.Controllers
 {
     [Authorize]
     [ApiController]
-    // Controller is EnvironmentController dus de naam van de controller is api/Environment
     [Route("api/[controller]")]
     public class EnvironmentController : ControllerBase
     {
@@ -105,7 +103,6 @@ namespace EnvironmentCreatorAPI.Controllers
 
             var userId = user.Id;
 
-            // GOOD EXAMPLE sql injection >Linq goed voorbeeld want je gebruikt de linq query en je zet de userid in de query als parameter deze kan niet aangepast worden dmv sql injection
             var environment = await _context.Environments
                 .FirstOrDefaultAsync(e => e.EnvironmentId == id && e.UserId == userId);
 
@@ -113,33 +110,6 @@ namespace EnvironmentCreatorAPI.Controllers
             {
                 return NotFound("Environment not found or not owned by user.");
             }
-
-            //BAD EXAMPLE sql injection omdat je de query zelf schrijft en userid in de query zet, deze kan aangepast worden dmv sql injection
-            //string query = $"SELECT * FROM Environments WHERE EnvironmentId = {id} AND UserId = '{userId}'";
-            //var command = _context.Database.GetDbConnection().CreateCommand();
-            //command.CommandText = query;
-
-            //_context.Database.OpenConnection();
-            //var reader = await command.ExecuteReaderAsync();
-
-            //Environment2D? environment = null;
-            //if (reader.Read())
-            //{
-            //    environment = new Environment2D
-            //    {
-            //        EnvironmentId = (int)reader["EnvironmentId"],
-            //        UserId = (string)reader["UserId"],
-            //        Name = (string)reader["Name"],
-            //        MaxWidth = (int)reader["MaxWidth"],
-            //        MaxHeight = (int)reader["MaxHeight"]
-            //    };
-            //}
-            //reader.Close();
-
-            //if (environment == null)
-            //{
-            //    return NotFound("Environment not found or not owned by user.");
-            //}
 
             var objectsToDelete = _context.Objects.Where(o => o.EnvironmentId == id);
             _context.Objects.RemoveRange(objectsToDelete);
